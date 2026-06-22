@@ -1,11 +1,10 @@
-const CACHE='typequest-v2';
+const CACHE='typequest-v3';
 const ASSETS=[
   './',
   './index.html',
   './manifest.json',
   './apple-touch-icon.png',
-  './data/yr3-au.json',
-  './data/yr3-uk.json'
+  './data/yr3-au.json'
 ];
 
 self.addEventListener('install',e=>{

@@ -47,11 +47,6 @@
   .btn-ghost:hover{color:var(--ink);}
   main{flex:1; width:100%; max-width:1100px; margin:0 auto; padding:0 clamp(14px,4vw,32px) 24px; display:flex; flex-direction:column;}
 
-  .locale-bar{display:flex; justify-content:center; gap:8px; margin:8px 0 0;}
-  .locale-btn{font-family:'Fredoka',sans-serif; font-weight:500; font-size:14px; color:var(--ink-soft);
-    background:var(--panel); border:1.5px solid var(--line); border-radius:999px; padding:6px 14px; cursor:pointer;}
-  .locale-btn.on{color:var(--ink); border-color:#4d9de0; background:#f0f7ff;}
-
   .teacher-panel{max-width:420px; margin:12px auto 0; text-align:center;}
   .teacher-toggle{font-family:'Fredoka',sans-serif; font-weight:500; font-size:14px; color:var(--ink-soft);
     background:none; border:none; cursor:pointer; padding:4px 8px;}
@@ -162,10 +157,6 @@
 
 <main>
   <section id="selectScreen">
-    <div class="locale-bar" id="localeBar">
-      <button type="button" class="locale-btn on" data-locale="au">🇦🇺 Australia</button>
-      <button type="button" class="locale-btn" data-locale="uk">🇬🇧 UK</button>
-    </div>
     <div class="lead"><h2>Pick a level</h2><p>Watch for the glowing key, then tap it or press it.</p></div>
     <p class="saved-note" id="savedNote" hidden>Progress is saved on this device.</p>
     <div class="teacher-panel" id="teacherPanel">
@@ -212,9 +203,8 @@
 
 <script>
 /* ---------- config ---------- */
-const LOCALE_KEY='typequest-locale';
-let locale='au';
-let DATA_URL='data/yr3-au.json';
+const DATA_URL='data/yr3-au.json';
+const STORAGE_KEY='typequest-yr3-au-v1';
 let appTitle='Type Quest — Year 3';
 
 /* ---------- fingers ---------- */
@@ -232,10 +222,6 @@ const KEYFINGER={
 const cssColor=code=>getComputedStyle(document.documentElement).getPropertyValue(FINGERS[code].v).trim();
 const COL=['LP','LR','LM','LI','RI','RM','RR','RP'].map(cssColor);
 const levelColor=l=>getComputedStyle(document.documentElement).getPropertyValue('--'+l.color).trim();
-const storageKey=()=>'typequest-yr3-'+locale+'-v1';
-const localeTag=()=>locale==='uk'?'en-GB':'en-AU';
-const localeLabel=()=>locale==='uk'?'United Kingdom':'Australia';
-
 /* ---------- levels (loaded from JSON) ---------- */
 let LEVELS=[];
 
@@ -249,7 +235,7 @@ const isLetterLower=c=>/^[a-z]$/.test(c);
 
 function loadProgress(){
   try{
-    const raw=localStorage.getItem(storageKey());
+    const raw=localStorage.getItem(STORAGE_KEY);
     if(!raw) return;
     const data=JSON.parse(raw);
     if(typeof data.unlocked==='number') unlocked=data.unlocked;
@@ -264,37 +250,9 @@ function loadProgress(){
 }
 function saveProgress(){
   try{
-    localStorage.setItem(storageKey(), JSON.stringify({ unlocked, bestTimes, levelStats }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ unlocked, bestTimes, levelStats }));
     document.getElementById('savedNote').hidden=false;
   }catch(e){ /* private browsing / quota */ }
-}
-
-function initLocale(){
-  try{
-    const saved=localStorage.getItem(LOCALE_KEY);
-    if(saved==='au'||saved==='uk') locale=saved;
-  }catch(e){}
-  DATA_URL='data/yr3-'+locale+'.json';
-  document.documentElement.lang=localeTag();
-  syncLocaleBtns();
-}
-function syncLocaleBtns(){
-  document.querySelectorAll('.locale-btn').forEach(b=>{
-    b.classList.toggle('on', b.dataset.locale===locale);
-  });
-}
-function setLocale(loc){
-  if(loc!== 'au' && loc!=='uk' || loc===locale) return;
-  locale=loc;
-  try{ localStorage.setItem(LOCALE_KEY, loc); }catch(e){}
-  DATA_URL='data/yr3-'+loc+'.json';
-  document.documentElement.lang=localeTag();
-  unlocked=0;
-  Object.keys(bestTimes).forEach(k=>delete bestTimes[k]);
-  Object.keys(levelStats).forEach(k=>delete levelStats[k]);
-  syncLocaleBtns();
-  loadProgress();
-  loadLevels();
 }
 
 async function loadLevels(){
@@ -324,8 +282,7 @@ function buildProgressReport(){
   const name=document.getElementById('studentName').value.trim();
   const lines=[
     appTitle+' — Progress summary',
-    'Exported '+new Date().toLocaleString(localeTag()),
-    'Region: '+localeLabel(),
+    'Exported '+new Date().toLocaleString('en-AU'),
     name?'Student: '+name:'',
     '',
     'Levels unlocked: '+(unlocked+1)+' of '+LEVELS.length,
@@ -387,10 +344,6 @@ document.getElementById('downloadProgress').onclick=()=>{
   if(!LEVELS.length){ toast('Levels still loading'); return; }
   downloadReport();
 };
-document.querySelectorAll('.locale-btn').forEach(b=>{
-  b.onclick=()=>setLocale(b.dataset.locale);
-});
-
 /* ---------- keyboard ---------- */
 const ROWS=[
   ['q','w','e','r','t','y','u','i','o','p'],
@@ -603,7 +556,6 @@ function runFx(type){
   raf=requestAnimationFrame(frame);
 }
 
-initLocale();
 loadProgress();
 loadLevels();
 
