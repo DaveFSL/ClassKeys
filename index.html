@@ -43,8 +43,25 @@
     background:var(--panel); border:1.5px solid var(--line); padding:7px 14px; border-radius:999px; display:none;}
   .btn-ghost{font-family:'Fredoka',sans-serif; font-weight:500; font-size:15px; color:var(--ink-soft);
     background:var(--panel); border:1.5px solid var(--line); border-radius:999px; padding:7px 16px; cursor:pointer; display:none;}
+  .btn-ghost.show{display:inline-block;}
   .btn-ghost:hover{color:var(--ink);}
   main{flex:1; width:100%; max-width:1100px; margin:0 auto; padding:0 clamp(14px,4vw,32px) 24px; display:flex; flex-direction:column;}
+
+  .locale-bar{display:flex; justify-content:center; gap:8px; margin:8px 0 0;}
+  .locale-btn{font-family:'Fredoka',sans-serif; font-weight:500; font-size:14px; color:var(--ink-soft);
+    background:var(--panel); border:1.5px solid var(--line); border-radius:999px; padding:6px 14px; cursor:pointer;}
+  .locale-btn.on{color:var(--ink); border-color:#4d9de0; background:#f0f7ff;}
+
+  .teacher-panel{max-width:420px; margin:12px auto 0; text-align:center;}
+  .teacher-toggle{font-family:'Fredoka',sans-serif; font-weight:500; font-size:14px; color:var(--ink-soft);
+    background:none; border:none; cursor:pointer; padding:4px 8px;}
+  .teacher-toggle:hover{color:var(--ink);}
+  .teacher-body{margin-top:10px; padding:14px 16px; background:var(--panel); border:1.5px solid var(--line); border-radius:16px;}
+  .teacher-input{width:100%; font-family:'Nunito',sans-serif; font-size:15px; font-weight:600; padding:10px 14px;
+    border:1.5px solid var(--line); border-radius:12px; margin-bottom:10px; color:var(--ink); user-select:text; -webkit-user-select:text;}
+  .teacher-actions{display:flex; gap:8px; justify-content:center; flex-wrap:wrap;}
+  .teacher-actions .btn-ghost{display:inline-block;}
+  .teacher-hint{margin:10px 0 0; font-size:12px; color:var(--ink-soft); font-weight:600; line-height:1.4;}
 
   .lead{text-align:center; margin:22px 0 6px;}
   .lead h2{font-family:'Fredoka',sans-serif; font-weight:600; font-size:clamp(26px,5vw,40px); margin:0 0 6px;}
@@ -93,8 +110,9 @@
     border:1.5px solid var(--line); border-bottom:4px solid var(--fc,#dde6ef); border-radius:12px;
     display:grid; place-items:center; font-family:'Fredoka',sans-serif; font-weight:500; font-size:clamp(15px,2.4vw,21px);
     color:var(--ink); cursor:pointer; transition:transform .08s ease, box-shadow .12s ease, background .12s ease, color .12s ease;}
-  .key.wide{flex:0 0 22%; aspect-ratio:auto; height:46px; max-width:150px; font-size:15px; color:var(--ink-soft);}
-  .key.space{flex:0 0 44%; aspect-ratio:auto; height:46px; max-width:340px; font-size:15px; color:var(--ink-soft);}
+  .key.wide{flex:0 0 20%; aspect-ratio:auto; height:46px; max-width:130px; font-size:14px; color:var(--ink-soft);}
+  .key.back{flex:0 0 16%; aspect-ratio:auto; height:46px; max-width:110px; font-size:20px; color:var(--ink-soft);}
+  .key.space{flex:1 1 auto; aspect-ratio:auto; height:46px; max-width:320px; min-width:120px; font-size:15px; color:var(--ink-soft);}
   .key.armed{background:var(--fc); color:#fff; border-color:var(--fc);}
   .key.next{background:var(--fc); color:#fff; border-color:var(--fc); transform:translateY(-4px);
     box-shadow:0 8px 18px color-mix(in srgb, var(--fc) 45%, transparent); animation:pulse 1.1s ease-in-out infinite;}
@@ -119,6 +137,11 @@
   .btn:active{transform:translateY(3px); box-shadow:0 3px 0 #2f8a54;}
   .btn.alt{background:#fff; color:var(--ink-soft); border:1.5px solid var(--line); box-shadow:none; margin-top:10px;}
 
+  .toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); opacity:0;
+    background:var(--ink); color:#fff; font-family:'Fredoka',sans-serif; font-weight:500; font-size:15px;
+    padding:10px 18px; border-radius:999px; z-index:40; pointer-events:none; transition:opacity .2s, transform .2s;}
+  .toast.on{opacity:1; transform:translateX(-50%) translateY(0);}
+
   @media (max-width:560px){
     .levels{grid-template-columns:repeat(2,1fr);}
     .krow.r2{padding:0 10px;} .krow.r3{padding:0 20px;} .key{border-radius:10px;}
@@ -139,8 +162,23 @@
 
 <main>
   <section id="selectScreen">
+    <div class="locale-bar" id="localeBar">
+      <button type="button" class="locale-btn on" data-locale="au">🇦🇺 Australia</button>
+      <button type="button" class="locale-btn" data-locale="uk">🇬🇧 UK</button>
+    </div>
     <div class="lead"><h2>Pick a level</h2><p>Watch for the glowing key, then tap it or press it.</p></div>
     <p class="saved-note" id="savedNote" hidden>Progress is saved on this device.</p>
+    <div class="teacher-panel" id="teacherPanel">
+      <button type="button" class="teacher-toggle" id="teacherToggle">For teachers ▾</button>
+      <div class="teacher-body" id="teacherBody" hidden>
+        <input type="text" id="studentName" class="teacher-input" placeholder="Student name (optional)" maxlength="60">
+        <div class="teacher-actions">
+          <button type="button" class="btn-ghost show" id="copyProgress">Copy progress</button>
+          <button type="button" class="btn-ghost show" id="downloadProgress">Download</button>
+        </div>
+        <p class="teacher-hint">Progress stays on this device. Copy or download to share with a teacher.</p>
+      </div>
+    </div>
     <div class="levels" id="levelGrid"><div class="load-msg">Loading levels…</div></div>
   </section>
 
@@ -174,8 +212,10 @@
 
 <script>
 /* ---------- config ---------- */
-const DATA_URL='data/yr3-au.json';
-const STORAGE_KEY='typequest-yr3-au-v1';
+const LOCALE_KEY='typequest-locale';
+let locale='au';
+let DATA_URL='data/yr3-au.json';
+let appTitle='Type Quest — Year 3';
 
 /* ---------- fingers ---------- */
 const FINGERS={
@@ -192,13 +232,16 @@ const KEYFINGER={
 const cssColor=code=>getComputedStyle(document.documentElement).getPropertyValue(FINGERS[code].v).trim();
 const COL=['LP','LR','LM','LI','RI','RM','RR','RP'].map(cssColor);
 const levelColor=l=>getComputedStyle(document.documentElement).getPropertyValue('--'+l.color).trim();
+const storageKey=()=>'typequest-yr3-'+locale+'-v1';
+const localeTag=()=>locale==='uk'?'en-GB':'en-AU';
+const localeLabel=()=>locale==='uk'?'United Kingdom':'Australia';
 
 /* ---------- levels (loaded from JSON) ---------- */
 let LEVELS=[];
 
 /* ---------- state ---------- */
 let unlocked=0, lvl=0, item=0, pos=0, busy=false, shiftArmed=false;
-let playOrder=[]; const bestTimes={};
+let playOrder=[]; const bestTimes={}; const levelStats={};
 let hits=0, misses=0;
 const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
@@ -206,37 +249,147 @@ const isLetterLower=c=>/^[a-z]$/.test(c);
 
 function loadProgress(){
   try{
-    const raw=localStorage.getItem(STORAGE_KEY);
+    const raw=localStorage.getItem(storageKey());
     if(!raw) return;
     const data=JSON.parse(raw);
     if(typeof data.unlocked==='number') unlocked=data.unlocked;
     if(data.bestTimes && typeof data.bestTimes==='object'){
       Object.keys(data.bestTimes).forEach(k=>{ bestTimes[+k]=data.bestTimes[k]; });
     }
+    if(data.levelStats && typeof data.levelStats==='object'){
+      Object.keys(data.levelStats).forEach(k=>{ levelStats[+k]=data.levelStats[k]; });
+    }
     document.getElementById('savedNote').hidden=false;
   }catch(e){ /* ignore corrupt storage */ }
 }
 function saveProgress(){
   try{
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ unlocked, bestTimes }));
+    localStorage.setItem(storageKey(), JSON.stringify({ unlocked, bestTimes, levelStats }));
     document.getElementById('savedNote').hidden=false;
   }catch(e){ /* private browsing / quota */ }
 }
 
+function initLocale(){
+  try{
+    const saved=localStorage.getItem(LOCALE_KEY);
+    if(saved==='au'||saved==='uk') locale=saved;
+  }catch(e){}
+  DATA_URL='data/yr3-'+locale+'.json';
+  document.documentElement.lang=localeTag();
+  syncLocaleBtns();
+}
+function syncLocaleBtns(){
+  document.querySelectorAll('.locale-btn').forEach(b=>{
+    b.classList.toggle('on', b.dataset.locale===locale);
+  });
+}
+function setLocale(loc){
+  if(loc!== 'au' && loc!=='uk' || loc===locale) return;
+  locale=loc;
+  try{ localStorage.setItem(LOCALE_KEY, loc); }catch(e){}
+  DATA_URL='data/yr3-'+loc+'.json';
+  document.documentElement.lang=localeTag();
+  unlocked=0;
+  Object.keys(bestTimes).forEach(k=>delete bestTimes[k]);
+  Object.keys(levelStats).forEach(k=>delete levelStats[k]);
+  syncLocaleBtns();
+  loadProgress();
+  loadLevels();
+}
+
 async function loadLevels(){
   const grid=document.getElementById('levelGrid');
+  grid.innerHTML='<div class="load-msg">Loading levels…</div>';
   try{
     const res=await fetch(DATA_URL);
     if(!res.ok) throw new Error('Could not load levels');
     const data=await res.json();
     LEVELS=data.levels||[];
-    if(data.title) document.getElementById('appTitle').textContent=data.title.replace(' — Year 3','');
-    loadProgress();
+    appTitle=data.title||'Type Quest — Year 3';
+    document.getElementById('appTitle').textContent=appTitle.replace(/ — Year 3.*/,'');
     renderLevels();
   }catch(e){
     grid.innerHTML='<div class="load-msg">Could not load levels. Check your connection and refresh.</div>';
   }
 }
+
+/* ---------- export (teachers) ---------- */
+function fmt(ms){const s=Math.floor(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+function fmtAccuracy(h,m){
+  const total=h+m;
+  if(!total) return '100%';
+  return Math.round(h/total*100)+'%';
+}
+function buildProgressReport(){
+  const name=document.getElementById('studentName').value.trim();
+  const lines=[
+    appTitle+' — Progress summary',
+    'Exported '+new Date().toLocaleString(localeTag()),
+    'Region: '+localeLabel(),
+    name?'Student: '+name:'',
+    '',
+    'Levels unlocked: '+(unlocked+1)+' of '+LEVELS.length,
+    ''
+  ];
+  LEVELS.forEach((L,i)=>{
+    let line=(i+1)+'. '+L.name+' — ';
+    if(i>unlocked) line+='Locked';
+    else if(bestTimes[i]!==undefined){
+      line+='Best time: '+fmt(bestTimes[i]);
+      if(levelStats[i]) line+=', last accuracy: '+levelStats[i].accuracy;
+    } else line+='Unlocked, not yet completed';
+    lines.push(line);
+  });
+  lines.push('','Note: Progress is stored on this device only. No data is sent online.');
+  return lines.filter((l,i)=>l!==''||lines[i-1]!==undefined).join('\n').replace(/\n\n\n/g,'\n\n');
+}
+function toast(msg){
+  let t=document.getElementById('toast');
+  if(!t){ t=document.createElement('div'); t.id='toast'; t.className='toast'; document.body.appendChild(t); }
+  t.textContent=msg; t.classList.add('on');
+  clearTimeout(toast._id);
+  toast._id=setTimeout(()=>t.classList.remove('on'),2200);
+}
+function copyText(text){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(()=>toast('Copied')).catch(()=>fallbackCopy(text));
+  }else fallbackCopy(text);
+}
+function fallbackCopy(text){
+  const ta=document.createElement('textarea');
+  ta.value=text; ta.style.position='fixed'; ta.style.left='-9999px';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); toast('Copied'); }catch(e){ toast('Copy failed'); }
+  ta.remove();
+}
+function downloadReport(){
+  const text=buildProgressReport();
+  const blob=new Blob([text],{type:'text/plain'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const slug=(document.getElementById('studentName').value.trim()||'progress').replace(/[^\w\-]+/g,'-').toLowerCase();
+  a.href=url; a.download='type-quest-'+slug+'.txt'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+  toast('Downloaded');
+}
+
+document.getElementById('teacherToggle').onclick=()=>{
+  const body=document.getElementById('teacherBody');
+  const open=body.hidden;
+  body.hidden=!open;
+  document.getElementById('teacherToggle').textContent=open?'For teachers ▴':'For teachers ▾';
+};
+document.getElementById('copyProgress').onclick=()=>{
+  if(!LEVELS.length){ toast('Levels still loading'); return; }
+  copyText(buildProgressReport());
+};
+document.getElementById('downloadProgress').onclick=()=>{
+  if(!LEVELS.length){ toast('Levels still loading'); return; }
+  downloadReport();
+};
+document.querySelectorAll('.locale-btn').forEach(b=>{
+  b.onclick=()=>setLocale(b.dataset.locale);
+});
 
 /* ---------- keyboard ---------- */
 const ROWS=[
@@ -257,14 +410,19 @@ ROWS.forEach((row,ri)=>{
 const sr=document.createElement('div'); sr.className='krow';
 const shiftEl=document.createElement('button'); shiftEl.className='key wide'; shiftEl.textContent='⇧ shift';
 shiftEl.style.setProperty('--fc',cssColor('LP')); shiftEl.dataset.key='Shift';
+const backEl=document.createElement('button'); backEl.className='key back'; backEl.textContent='⌫';
+backEl.style.setProperty('--fc',cssColor('RP')); backEl.dataset.key='Backspace';
+backEl.setAttribute('aria-label','Backspace');
 const sp=document.createElement('button'); sp.className='key space'; sp.textContent='space';
 sp.style.setProperty('--fc',cssColor('TH')); sp.dataset.key=' ';
-sr.appendChild(shiftEl); sr.appendChild(sp); keyEls[' ']=sp; kb.appendChild(sr);
+sr.appendChild(shiftEl); sr.appendChild(backEl); sr.appendChild(sp);
+keyEls[' ']=sp; kb.appendChild(sr);
 
 kb.addEventListener('pointerdown',e=>{
   const el=e.target.closest('.key'); if(!el) return; e.preventDefault();
   const k=el.dataset.key;
   if(k==='Shift'){ shiftArmed=!shiftArmed; shiftEl.classList.toggle('armed',shiftArmed); refresh(); return; }
+  if(k==='Backspace'){ pressBackspace(); return; }
   let c=k; if(shiftArmed && isLetterLower(c)) c=c.toUpperCase();
   shiftArmed=false; shiftEl.classList.remove('armed');
   pressChar(c);
@@ -272,18 +430,13 @@ kb.addEventListener('pointerdown',e=>{
 window.addEventListener('keydown',e=>{
   if(e.metaKey||e.ctrlKey||e.altKey) return;
   if(e.key==='Shift'){ shiftArmed=true; shiftEl.classList.add('armed'); refresh(); return; }
+  if(e.key==='Backspace'){ e.preventDefault(); pressBackspace(); return; }
   if(e.key===' ') e.preventDefault();
   if(e.key.length===1){ shiftArmed=false; shiftEl.classList.remove('armed'); pressChar(e.key); }
 });
 
 /* ---------- level select ---------- */
 const grid=document.getElementById('levelGrid');
-function fmt(ms){const s=Math.floor(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
-function fmtAccuracy(h,m){
-  const total=h+m;
-  if(!total) return '100%';
-  return Math.round(h/total*100)+'%';
-}
 function renderLevels(){
   grid.innerHTML='';
   LEVELS.forEach((L,i)=>{
@@ -335,7 +488,7 @@ function loadItem(){
 function refresh(){
   const text=playOrder[item]; const chars=wordEl.children;
   [...chars].forEach((s,idx)=>{ s.classList.toggle('done',idx<pos); s.classList.toggle('current',idx===pos); });
-  Object.values(keyEls).forEach(k=>k.classList.remove('next')); shiftEl.classList.remove('next');
+  Object.values(keyEls).forEach(k=>k.classList.remove('next')); shiftEl.classList.remove('next'); backEl.classList.remove('next');
   const target=text[pos]; if(target===undefined) return;
   const isUpper=/[A-Z]/.test(target);
   let fingerCode, nextEl;
@@ -348,6 +501,14 @@ function refresh(){
   if(isUpper && !shiftArmed) hintText.textContent='hold Shift · left little finger';
   else if(isUpper && shiftArmed) hintText.textContent='now '+FINGERS[fingerCode].name;
   else hintText.textContent=FINGERS[fingerCode].name;
+}
+function pressBackspace(){
+  if(busy || !playScreen.classList.contains('on')) return;
+  if(pos<=0) return;
+  pos--;
+  backEl.classList.add('hit');
+  setTimeout(()=>backEl.classList.remove('hit'),160);
+  refresh();
 }
 function pressChar(produced){
   if(busy || !playScreen.classList.contains('on')) return;
@@ -380,15 +541,17 @@ const ovNext=document.getElementById('ovNext');
 const ovHome=document.getElementById('ovHome');
 function finishLevel(){
   const elapsed=stopTimer(); barFill.style.width='100%';
+  const accuracy=fmtAccuracy(hits,misses);
   let isBest=false;
   if(bestTimes[lvl]===undefined || elapsed<bestTimes[lvl]){ bestTimes[lvl]=elapsed; isBest=true; }
+  levelStats[lvl]={ time:elapsed, accuracy, at:Date.now() };
   if(lvl+1>unlocked && lvl+1<LEVELS.length) unlocked=lvl+1;
   saveProgress();
   celebrate();
   ovEmoji.textContent=LEVELS[lvl].emoji;
   ovTitle.textContent=`${LEVELS[lvl].name} done!`;
   ovTime.textContent=`Your time: ${fmt(elapsed)}`;
-  ovAccuracy.textContent=`Accuracy: ${fmtAccuracy(hits,misses)}`;
+  ovAccuracy.textContent=`Accuracy: ${accuracy}`;
   ovBestWrap.innerHTML=isBest?'<div class="newbest">⭐ New best time!</div>':`<div class="stat">Best: ${fmt(bestTimes[lvl])}</div>`;
   const last=lvl>=LEVELS.length-1;
   if(last){ ovNext.textContent='Play again'; ovNext.onclick=()=>{overlay.classList.remove('on'); startLevel(lvl);}; }
@@ -440,7 +603,13 @@ function runFx(type){
   raf=requestAnimationFrame(frame);
 }
 
+initLocale();
+loadProgress();
 loadLevels();
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
 </script>
 </body>
 </html>
