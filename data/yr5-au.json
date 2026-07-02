@@ -3,84 +3,117 @@
   "yearGroup": 5,
   "title": "Type Quest — Year 5",
   "curriculumVersion": "9.0",
-  "curriculumSubject": "English",
+  "curriculumSubject": "English, Mathematics, Science, HASS, Technologies, HPE",
   "levels": [
     {
       "name": "Home Row",
       "color": "LM",
       "emoji": "🏠",
-      "sub": "Find the keys under your fingers",
+      "sub": "Keyboard fluency for writing across all subjects",
       "curriculum": {
         "codes": ["AC9E5LY06"],
-        "focus": "Keyboard fluency to create written texts"
+        "focus": "Create written texts in English and other learning areas"
       },
       "items": ["f", "j", "d", "k", "a", "s", "l", "g", "h", "as", "add", "dad", "sad", "ask", "all", "lad", "fall", "glass", "flask", "salad", "flash"]
     },
     {
-      "name": "Complex Patterns",
+      "name": "English Words",
       "color": "LI",
-      "emoji": "🧩",
-      "sub": "Advanced grapheme–phoneme relationships",
+      "emoji": "📖",
+      "sub": "Complex spelling patterns — AC9 English Literacy",
       "curriculum": {
-        "codes": ["AC9E5LY08"],
-        "focus": "Use phonic knowledge of common and less common grapheme–phoneme relationships"
+        "codes": ["AC9E5LY08", "AC9E5LY09"],
+        "focus": "Grapheme–phoneme relationships and morphemic word knowledge"
       },
-      "items": ["placeholder", "words", "coming", "soon"]
+      "items": ["argument", "evidence", "conclusion", "structure", "technique", "metaphor", "simile", "opinion", "persuade", "inform", "explain", "recount", "narrative", "procedure", "glossary", "definition", "summary", "analysis", "interpret", "evaluate"]
     },
     {
-      "name": "Sentences",
-      "color": "RI",
-      "emoji": "✏️",
-      "sub": "Complex and compound sentences",
+      "name": "Maths Words",
+      "color": "RM",
+      "emoji": "🔢",
+      "sub": "Fractions, decimals and measurement",
       "curriculum": {
-        "codes": ["AC9E5LA06", "AC9E5LY06"],
-        "focus": "Understand and write complex sentences for a range of purposes"
+        "codes": ["AC9M5N01", "AC9M5N02", "AC9M5M04", "AC9M5SP01"],
+        "focus": "Fractions, decimals, units of measurement and grid references"
       },
-      "items": ["placeholder sentence one", "placeholder sentence two"]
+      "items": ["equivalent", "improper", "percentage", "decimal", "tenth", "hundredth", "convert", "volume", "capacity", "mass", "Celsius", "protractor", "coordinate", "grid", "reference", "transformation", "translation", "reflection", "rotation", "symmetry"]
+    },
+    {
+      "name": "Science Words",
+      "color": "RI",
+      "emoji": "🔬",
+      "sub": "Adaptations, light and matter",
+      "curriculum": {
+        "codes": ["AC9S5U01", "AC9S5P01", "AC9S5C01"],
+        "focus": "Adaptations for survival, light and properties of matter"
+      },
+      "items": ["adaptation", "survival", "structural", "behavioural", "habitat", "ecosystem", "predator", "prey", "camouflage", "reflection", "refraction", "shadow", "transparent", "opaque", "dissolve", "mixture", "solution", "solid", "liquid", "gas"]
+    },
+    {
+      "name": "HASS Words",
+      "color": "LR",
+      "emoji": "🌏",
+      "sub": "Colonial Australia and environments",
+      "curriculum": {
+        "codes": ["AC9H5K01", "AC9H5G01", "AC9H5C01"],
+        "focus": "Colonial history, climate zones and civic participation"
+      },
+      "items": ["colony", "colonisation", "settlement", "migration", "immigration", "frontier", "resource", "trade", "economy", "latitude", "longitude", "climate", "vegetation", "drought", "flood", "sustainability", "democracy", "parliament", "citizen", "participation"]
     },
     {
       "name": "Morphology",
-      "color": "RM",
-      "emoji": "🔬",
+      "color": "RR",
+      "emoji": "🌱",
       "sub": "Base words, prefixes and suffixes",
       "curriculum": {
-        "codes": ["AC9E5LY09"],
-        "focus": "Use morphemic knowledge of base words, prefixes and suffixes to spell words"
+        "codes": ["AC9E5LY09", "AC9E5LY10"],
+        "focus": "Morphemic knowledge in academic and subject vocabulary"
       },
-      "items": ["prefix", "suffix", "morpheme"]
+      "items": ["biology", "geology", "photograph", "microscope", "telescope", "automatic", "manual", "renewable", "biodegradable", "international", "national", "historical", "governmental", "environmental", "cultural", "traditional", "exploration", "colonisation", "settlement", "migration"]
     },
     {
       "name": "Tricky Words",
-      "color": "LR",
+      "color": "RP",
       "emoji": "🎯",
-      "sub": "Irregular and technical vocabulary",
+      "sub": "Irregular spellings in curriculum texts",
       "curriculum": {
         "codes": ["AC9E5LY10"],
-        "focus": "Use knowledge of spelling patterns and generalisations to spell words"
+        "focus": "Spelling patterns and generalisations in subject writing"
       },
-      "items": ["necessary", "separate", "definitely"]
+      "items": ["necessary", "separate", "definitely", "environment", "government", "parliament", "temperature", "measurement", "experiment", "conclusion", "because", "although", "throughout", "immediately", "occasionally", "especially", "recommend", "guarantee", "rhythm", "physical"]
     },
     {
-      "name": "Capitals",
-      "color": "RR",
+      "name": "Capitals & Places",
+      "color": "LP",
       "emoji": "🔠",
-      "sub": "Proper nouns, titles and sentence starts",
+      "sub": "Proper nouns — Australia and the world",
       "curriculum": {
-        "codes": ["AC9E5LA08"],
-        "focus": "Understand how proper nouns and titles use capital letters"
+        "codes": ["AC9E5LA08", "AC9H5K01"],
+        "focus": "Capital letters for people, places and historical events"
       },
-      "items": ["Canberra", "Queensland", "Australia", "Wednesday"]
+      "items": ["Australia", "Canberra", "Queensland", "Victoria", "Darwin", "Hobart", "Cook", "Macquarie", "Banks", "Eureka", "Federation", "Europe", "Africa", "America", "Asia", "Antarctica", "Wednesday", "Thursday", "September", "October"]
     },
     {
-      "name": "Punctuated Sentences",
-      "color": "RP",
-      "emoji": "🏆",
-      "sub": "Edit and publish with varied punctuation",
+      "name": "Technologies & HPE",
+      "color": "LI",
+      "emoji": "💻",
+      "sub": "Design, data and health vocabulary",
       "curriculum": {
-        "codes": ["AC9E5LY06"],
-        "focus": "Plan, create, edit and publish written texts with varied punctuation"
+        "codes": ["AC9T5D01", "AC9T5I02", "AC9HP5P01", "AC9HP5M01"],
+        "focus": "Design processes, data, health and movement"
       },
-      "items": ["Placeholder sentence.", "Another placeholder sentence."]
+      "items": ["prototype", "criteria", "constraint", "evaluate", "iterate", "database", "spreadsheet", "variable", "debug", "cybersafe", "respect", "consent", "nutrition", "protein", "carbohydrate", "hydration", "endurance", "flexibility", "coordination", "fairplay"]
+    },
+    {
+      "name": "Full Sentences",
+      "color": "RI",
+      "emoji": "🏆",
+      "sub": "Cross-curricular sentences with punctuation",
+      "curriculum": {
+        "codes": ["AC9E5LY06", "AC9E5LA06"],
+        "focus": "Complex sentences about science, HASS and maths"
+      },
+      "items": ["Adaptations help organisms survive in their habitat.", "Light travels in straight lines.", "Colonial settlement changed life in Australia.", "Equivalent fractions name the same amount.", "Citizens participate in a democracy.", "A mixture can be separated by filtering.", "The grid reference locates a place on a map.", "Renewable resources can be replaced.", "The experiment tested our prediction.", "We evaluated our design against the criteria."]
     }
   ]
 }

@@ -3,84 +3,117 @@
   "yearGroup": 4,
   "title": "Type Quest — Year 4",
   "curriculumVersion": "9.0",
-  "curriculumSubject": "English",
+  "curriculumSubject": "English, Mathematics, Science, HASS, Technologies, HPE",
   "levels": [
     {
       "name": "Home Row",
       "color": "LM",
       "emoji": "🏠",
-      "sub": "Find the keys under your fingers",
+      "sub": "Keyboard fluency for writing across all subjects",
       "curriculum": {
         "codes": ["AC9E4LY06"],
-        "focus": "Keyboard fluency to create written texts"
+        "focus": "Create written texts in English and other learning areas"
       },
       "items": ["f", "j", "d", "k", "a", "s", "l", "g", "h", "as", "add", "dad", "sad", "ask", "all", "lad", "fall", "glass", "flask", "salad", "flash"]
     },
     {
-      "name": "Multisyllabic Words",
+      "name": "English Words",
       "color": "LI",
-      "emoji": "🧩",
-      "sub": "Complex letter combinations and vowel sounds",
+      "emoji": "📖",
+      "sub": "Multisyllabic spelling — AC9 English Literacy",
       "curriculum": {
-        "codes": ["AC9E4LY09"],
-        "focus": "Use phonological and morphological knowledge to read and write multisyllabic words"
+        "codes": ["AC9E4LY09", "AC9E4LY10"],
+        "focus": "Read and write multisyllabic words using phonological and morphological knowledge"
       },
-      "items": ["placeholder", "words", "coming", "soon"]
+      "items": ["important", "different", "beautiful", "together", "remember", "question", "sentence", "paragraph", "library", "February", "surprise", "favourite", "knowledge", "language", "describe", "audience", "purpose", "inform", "persuade", "entertain"]
     },
     {
-      "name": "Sentences",
-      "color": "RI",
-      "emoji": "✏️",
-      "sub": "Simple and compound sentences",
+      "name": "Maths Words",
+      "color": "RM",
+      "emoji": "🔢",
+      "sub": "Number, measurement and space vocabulary",
       "curriculum": {
-        "codes": ["AC9E4LA06", "AC9E4LY06"],
-        "focus": "Understand and write simple and compound sentences"
+        "codes": ["AC9M4N01", "AC9M4N02", "AC9M4M01", "AC9M4SP01"],
+        "focus": "Number patterns, fractions, length, area, angles and symmetry"
       },
-      "items": ["placeholder sentence one", "placeholder sentence two"]
+      "items": ["fraction", "decimal", "numerator", "denominator", "multiply", "division", "remainder", "estimate", "pattern", "perimeter", "symmetry", "angle", "triangle", "rectangle", "kilometre", "millimetre", "litre", "kilogram", "calendar", "duration"]
+    },
+    {
+      "name": "Science Words",
+      "color": "RI",
+      "emoji": "🔬",
+      "sub": "Living things and Earth's surface",
+      "curriculum": {
+        "codes": ["AC9S4U01", "AC9S4B01", "AC9S4E01"],
+        "focus": "Life cycles, living things and changes to Earth's surface"
+      },
+      "items": ["habitat", "lifecycle", "living", "nonliving", "adaptation", "environment", "weathering", "erosion", "deposit", "surface", "observe", "predict", "investigate", "evidence", "classification", "vertebrate", "invertebrate", "producer", "consumer", "foodchain"]
+    },
+    {
+      "name": "HASS Words",
+      "color": "LR",
+      "emoji": "🌏",
+      "sub": "History, geography and civics vocabulary",
+      "curriculum": {
+        "codes": ["AC9H4K01", "AC9H4G01", "AC9H4C01"],
+        "focus": "First Nations history, places and environments, rules and laws"
+      },
+      "items": ["community", "culture", "tradition", "timeline", "artefact", "source", "settlement", "continent", "hemisphere", "climate", "vegetation", "environment", "sustainability", "citizen", "government", "rules", "laws", "democracy", "respect", "country"]
     },
     {
       "name": "Prefixes & Suffixes",
-      "color": "RM",
+      "color": "RR",
       "emoji": "🔧",
-      "sub": "Word families and spelling generalisations",
+      "sub": "Word building for subject vocabulary",
       "curriculum": {
-        "codes": ["AC9E4LY10"],
-        "focus": "Use letter patterns, prefixes, suffixes and word origins to spell complex words"
+        "codes": ["AC9E4LY10", "AC9E4LY11"],
+        "focus": "Prefixes, suffixes and spelling generalisations in curriculum words"
       },
-      "items": ["prefix", "suffix", "wordfamily"]
+      "items": ["preview", "rewrite", "submarine", "transport", "disappear", "unhappy", "helpful", "quickly", "teacher", "movement", "darkness", "payment", "readable", "flexible", "national", "historical", "environmental", "renewable", "governmental", "cultural"]
     },
     {
       "name": "Tricky Words",
-      "color": "LR",
+      "color": "RP",
       "emoji": "🎯",
-      "sub": "High-frequency words and homophones",
+      "sub": "Homophones and irregular spellings",
       "curriculum": {
         "codes": ["AC9E4LY11"],
-        "focus": "Read and write high-frequency words including homophones"
+        "focus": "High-frequency words including homophones in context"
       },
-      "items": ["there", "their", "they're"]
+      "items": ["there", "their", "they're", "where", "wear", "weather", "whether", "peace", "piece", "break", "brake", "whole", "hole", "through", "threw", "accept", "except", "quite", "quiet", "principal"]
     },
     {
-      "name": "Capitals",
-      "color": "RR",
+      "name": "Capitals & Places",
+      "color": "LP",
       "emoji": "🔠",
-      "sub": "Proper nouns and sentence starts",
+      "sub": "Proper nouns — Australia and the region",
       "curriculum": {
-        "codes": ["AC9E4LA08"],
-        "focus": "Understand how proper nouns use capital letters"
+        "codes": ["AC9E4LA08", "AC9H4G01"],
+        "focus": "Capital letters for proper nouns including Australian places"
       },
-      "items": ["Sydney", "Melbourne", "Australia", "Tuesday"]
+      "items": ["Australia", "Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide", "Tasmania", "Pacific", "Indian", "Antarctica", "Monday", "Tuesday", "January", "February", "Anangu", "Yolngu", "Kaurna", "Wurundjeri", "Europe", "Asia"]
     },
     {
-      "name": "Punctuated Sentences",
-      "color": "RP",
-      "emoji": "🏆",
-      "sub": "Edit and publish with correct punctuation",
+      "name": "Technologies & HPE",
+      "color": "LI",
+      "emoji": "💻",
+      "sub": "Digital systems, design and wellbeing words",
       "curriculum": {
-        "codes": ["AC9E4LY06"],
-        "focus": "Plan, create, edit and publish written texts with correct punctuation"
+        "codes": ["AC9T4D01", "AC9T4I01", "AC9HP4P01", "AC9HP4M01"],
+        "focus": "Design, digital systems, health and movement vocabulary"
       },
-      "items": ["Placeholder sentence.", "Another placeholder sentence."]
+      "items": ["design", "solution", "system", "digital", "network", "algorithm", "sequence", "input", "output", "nutrition", "hydration", "fitness", "exercise", "wellbeing", "teamwork", "respect", "balance", "stretch", "strength", "safety"]
+    },
+    {
+      "name": "Full Sentences",
+      "color": "RI",
+      "emoji": "🏆",
+      "sub": "Cross-curricular sentences with punctuation",
+      "curriculum": {
+        "codes": ["AC9E4LY06", "AC9E4LA06"],
+        "focus": "Write sentences about science, HASS and maths with correct punctuation"
+      },
+      "items": ["The habitat supports many living things.", "We measured the perimeter in centimetres.", "First Nations peoples have deep connections to Country.", "The life cycle has several clear stages.", "A fraction shows part of a whole.", "Weathering changes the Earth's surface.", "Our community follows rules and laws.", "Plants need sunlight and water.", "The timeline shows events in order.", "Digital systems use inputs and outputs."]
     }
   ]
 }

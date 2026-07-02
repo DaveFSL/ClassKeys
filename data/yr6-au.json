@@ -3,84 +3,117 @@
   "yearGroup": 6,
   "title": "Type Quest — Year 6",
   "curriculumVersion": "9.0",
-  "curriculumSubject": "English",
+  "curriculumSubject": "English, Mathematics, Science, HASS, Technologies, HPE",
   "levels": [
     {
       "name": "Home Row",
       "color": "LM",
       "emoji": "🏠",
-      "sub": "Find the keys under your fingers",
+      "sub": "Keyboard fluency for writing across all subjects",
       "curriculum": {
         "codes": ["AC9E6LY06"],
-        "focus": "Keyboard fluency to create written texts"
+        "focus": "Create written texts in English and other learning areas"
       },
       "items": ["f", "j", "d", "k", "a", "s", "l", "g", "h", "as", "add", "dad", "sad", "ask", "all", "lad", "fall", "glass", "flask", "salad", "flash"]
     },
     {
-      "name": "Grapheme–Phoneme",
+      "name": "English Words",
       "color": "LI",
-      "emoji": "🧩",
-      "sub": "Less common grapheme–phoneme relationships",
+      "emoji": "📖",
+      "sub": "Advanced vocabulary for analysis and writing",
       "curriculum": {
-        "codes": ["AC9E6LY08"],
-        "focus": "Use phonic knowledge of common and less common grapheme–phoneme relationships"
+        "codes": ["AC9E6LY08", "AC9E6LE02"],
+        "focus": "Literary devices and vocabulary for interpreting texts"
       },
-      "items": ["placeholder", "words", "coming", "soon"]
+      "items": ["analyse", "interpret", "evaluate", "compare", "contrast", "summarise", "synthesise", "perspective", "viewpoint", "theme", "character", "setting", "plot", "symbolism", "imagery", "alliteration", "personification", "hyperbole", "structure", "technique"]
     },
     {
-      "name": "Sentences",
-      "color": "RI",
-      "emoji": "✏️",
-      "sub": "Complex sentences for varied purposes",
+      "name": "Maths Words",
+      "color": "RM",
+      "emoji": "🔢",
+      "sub": "Integers, algebra and statistics",
       "curriculum": {
-        "codes": ["AC9E6LA06", "AC9E6LY06"],
-        "focus": "Understand and write complex sentences for particular purposes and audiences"
+        "codes": ["AC9M6N01", "AC9M6A01", "AC9M6ST01"],
+        "focus": "Integers, algebraic thinking, data and probability"
       },
-      "items": ["placeholder sentence one", "placeholder sentence two"]
+      "items": ["integer", "negative", "positive", "numberline", "variable", "expression", "equation", "pattern", "rule", "order", "operation", "brackets", "fraction", "decimal", "percentage", "ratio", "probability", "outcome", "frequency", "dataset"]
+    },
+    {
+      "name": "Science Words",
+      "color": "RI",
+      "emoji": "🔬",
+      "sub": "Cells, energy and classification",
+      "curriculum": {
+        "codes": ["AC9S6U01", "AC9S6B01", "AC9S6P01"],
+        "focus": "Cells, classification of living things and energy transfer"
+      },
+      "items": ["cell", "organism", "microorganism", "bacteria", "classification", "kingdom", "species", "vertebrate", "invertebrate", "energy", "transfer", "transform", "circuit", "conductor", "insulator", "force", "motion", "gravity", "friction", "electrical"]
+    },
+    {
+      "name": "HASS Words",
+      "color": "LR",
+      "emoji": "🌏",
+      "sub": "Federation, democracy and global connections",
+      "curriculum": {
+        "codes": ["AC9H6K01", "AC9H6G01", "AC9H6C01"],
+        "focus": "Australian Federation, Asia-Pacific connections and citizenship"
+      },
+      "items": ["federation", "constitution", "referendum", "democracy", "republic", "monarchy", "parliament", "legislation", "globalisation", "connection", "interdependence", "trade", "migration", "culture", "heritage", "sustainability", "conservation", "treaty", "reconciliation", "citizenship"]
     },
     {
       "name": "Roots & Affixes",
-      "color": "RM",
+      "color": "RR",
       "emoji": "🌱",
-      "sub": "Latin and Greek roots, prefixes and suffixes",
+      "sub": "Latin and Greek roots in science and HASS",
       "curriculum": {
         "codes": ["AC9E6LY09"],
-        "focus": "Use knowledge of word origins including Latin and Greek roots, prefixes and suffixes"
+        "focus": "Word origins including Latin and Greek roots in subject vocabulary"
       },
-      "items": ["biology", "transport", "preview"]
+      "items": ["biology", "geology", "astronomy", "microscope", "telescope", "photograph", "transport", "translate", "predict", "inspect", "visible", "audible", "flexible", "sensible", "annual", "manual", "automatic", "bilingual", "multicultural", "international"]
     },
     {
       "name": "Tricky Words",
-      "color": "LR",
+      "color": "RP",
       "emoji": "🎯",
-      "sub": "Complex and subject-specific vocabulary",
+      "sub": "Complex spellings in secondary-ready writing",
       "curriculum": {
         "codes": ["AC9E6LY08", "AC9E6LY09"],
-        "focus": "Spell using phonic, morphemic and grammatical knowledge"
+        "focus": "Phonic, morphemic and grammatical knowledge for complex words"
       },
-      "items": ["accommodate", "occurrence", "maintenance"]
+      "items": ["accommodate", "occurrence", "maintenance", "conscience", "conscious", "parliament", "government", "environment", "temperature", "guarantee", "recommend", "immediately", "definitely", "separate", "necessary", "rhythm", "physical", "psychology", "technique", "analysis"]
     },
     {
-      "name": "Capitals",
-      "color": "RR",
+      "name": "Capitals & Places",
+      "color": "LP",
       "emoji": "🔠",
-      "sub": "Proper nouns, titles and sentence starts",
+      "sub": "Proper nouns — Australia, Asia-Pacific and beyond",
       "curriculum": {
-        "codes": ["AC9E6LA08"],
-        "focus": "Understand how proper nouns and titles use capital letters"
+        "codes": ["AC9E6LA08", "AC9H6G01"],
+        "focus": "Capital letters for nations, regions and historical terms"
       },
-      "items": ["Adelaide", "Tasmania", "Australia", "Thursday"]
+      "items": ["Australia", "Canberra", "Sydney", "Melbourne", "Indonesia", "Japan", "China", "India", "New Zealand", "Pacific", "Asia", "Europe", "Antarctica", "Federation", "Anzac", "Uluru", "Kakadu", "Murray", "Darling", "Thursday"]
     },
     {
-      "name": "Punctuated Sentences",
-      "color": "RP",
-      "emoji": "🏆",
-      "sub": "Edit and publish with precise punctuation",
+      "name": "Technologies & HPE",
+      "color": "LI",
+      "emoji": "💻",
+      "sub": "Digital citizenship, design and health",
       "curriculum": {
-        "codes": ["AC9E6LY06"],
-        "focus": "Plan, create, edit and publish written texts with precise punctuation"
+        "codes": ["AC9T6D01", "AC9T6I02", "AC9HP6P01", "AC9HP6M01"],
+        "focus": "Design thinking, digital systems, health and movement"
       },
-      "items": ["Placeholder sentence.", "Another placeholder sentence."]
+      "items": ["algorithm", "program", "debug", "interface", "cyberbullying", "privacy", "copyright", "plagiarism", "respect", "consent", "nutrition", "wellbeing", "resilience", "mindfulness", "aerobic", "anaerobic", "hydration", "recovery", "inclusion", "fairness"]
+    },
+    {
+      "name": "Full Sentences",
+      "color": "RI",
+      "emoji": "🏆",
+      "sub": "Cross-curricular sentences with precise punctuation",
+      "curriculum": {
+        "codes": ["AC9E6LY06", "AC9E6LA06"],
+        "focus": "Complex sentences for science, HASS and maths reports"
+      },
+      "items": ["All living things are made of cells.", "Energy transfers through a food chain.", "Federation united the Australian colonies.", "The variable changed the outcome.", "Classification groups organisms by features.", "Citizens have rights and responsibilities.", "Friction slows moving objects.", "Global connections shape our economy.", "We analysed the data to find a pattern.", "Reconciliation builds respect between communities."]
     }
   ]
 }
