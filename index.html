@@ -47,16 +47,38 @@
   .btn-ghost:hover{color:var(--ink);}
   main{flex:1; width:100%; max-width:1100px; margin:0 auto; padding:0 clamp(14px,4vw,32px) 24px; display:flex; flex-direction:column;}
 
-  .teacher-panel{max-width:420px; margin:12px auto 0; text-align:center;}
-  .teacher-toggle{font-family:'Fredoka',sans-serif; font-weight:500; font-size:14px; color:var(--ink-soft);
-    background:none; border:none; cursor:pointer; padding:4px 8px;}
-  .teacher-toggle:hover{color:var(--ink);}
-  .teacher-body{margin-top:10px; padding:14px 16px; background:var(--panel); border:1.5px solid var(--line); border-radius:16px;}
-  .teacher-input{width:100%; font-family:'Nunito',sans-serif; font-size:15px; font-weight:600; padding:10px 14px;
+  .info-panels{max-width:520px; margin:12px auto 0; text-align:center;}
+  .panel-toggle{font-family:'Fredoka',sans-serif; font-weight:500; font-size:14px; color:var(--ink-soft);
+    background:none; border:none; cursor:pointer; padding:4px 8px; margin:0 4px;}
+  .panel-toggle:hover{color:var(--ink);}
+  .panel-body{margin-top:10px; padding:14px 16px; background:var(--panel); border:1.5px solid var(--line); border-radius:16px; text-align:left;}
+  .panel-body[hidden]{display:none;}
+  .panel-label{display:block; font-family:'Fredoka',sans-serif; font-weight:600; font-size:13px; color:var(--ink-soft); margin:0 0 6px;}
+  .panel-input,.panel-textarea{width:100%; font-family:'Nunito',sans-serif; font-size:15px; font-weight:600; padding:10px 14px;
     border:1.5px solid var(--line); border-radius:12px; margin-bottom:10px; color:var(--ink); user-select:text; -webkit-user-select:text;}
-  .teacher-actions{display:flex; gap:8px; justify-content:center; flex-wrap:wrap;}
-  .teacher-actions .btn-ghost{display:inline-block;}
-  .teacher-hint{margin:10px 0 0; font-size:12px; color:var(--ink-soft); font-weight:600; line-height:1.4;}
+  .panel-textarea{min-height:88px; resize:vertical; line-height:1.45;}
+  .panel-actions{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:4px;}
+  .panel-actions .btn-ghost{display:inline-block;}
+  .panel-hint{margin:10px 0 0; font-size:12px; color:var(--ink-soft); font-weight:600; line-height:1.45; text-align:center;}
+  .panel-divider{height:1px; background:var(--line); margin:14px 0;}
+  .panel-section-title{font-family:'Fredoka',sans-serif; font-weight:600; font-size:14px; color:var(--ink); margin:0 0 8px;}
+  .progress-summary{display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin:0 0 12px;}
+  .progress-pill{font-family:'Fredoka',sans-serif; font-weight:600; font-size:13px; color:var(--ink-soft);
+    background:var(--panel); border:1.5px solid var(--line); border-radius:999px; padding:6px 14px;}
+  .progress-pill strong{color:var(--ink);}
+  .parent-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:10px;}
+  .parent-stat{background:#f1f6fb; border-radius:12px; padding:10px 8px; text-align:center;}
+  .parent-stat .val{font-family:'Fredoka',sans-serif; font-weight:700; font-size:20px; color:var(--RM); display:block;}
+  .parent-stat .lbl{font-size:11px; font-weight:700; color:var(--ink-soft);}
+  .curriculum-focus{margin:6px 0 0; font-size:12px; font-weight:600; color:var(--ink-soft); line-height:1.35;}
+  .lvl-card.custom{border-color:var(--RM); box-shadow:0 8px 20px rgba(77,157,224,.12);}
+  .lvl-card .done-badge{margin-top:8px; font-size:12px; font-weight:700; color:var(--ok);}
+  .chip.wpm{background:#f3eefc; color:var(--RR); border-radius:999px; padding:4px 12px;}
+  .encourage-msg{min-height:22px; font-family:'Fredoka',sans-serif; font-weight:500; font-size:15px; color:var(--bad); opacity:0; transition:opacity .15s;}
+  .encourage-msg.on{opacity:1;}
+  .file-btn{display:inline-block; font-family:'Fredoka',sans-serif; font-weight:500; font-size:14px; color:var(--ink-soft);
+    background:var(--panel); border:1.5px solid var(--line); border-radius:999px; padding:7px 16px; cursor:pointer;}
+  .file-btn input{display:none;}
 
   .lead{text-align:center; margin:22px 0 6px;}
   .lead h2{font-family:'Fredoka',sans-serif; font-weight:600; font-size:clamp(26px,5vw,40px); margin:0 0 6px;}
@@ -171,15 +193,45 @@
     <p class="curriculum-note">Aligned to Australian Curriculum v9.0 — English</p>
     <div class="year-tabs" id="yearTabs" role="tablist" aria-label="Year group"></div>
     <p class="saved-note" id="savedNote" hidden>Progress is saved on this device.</p>
-    <div class="teacher-panel" id="teacherPanel">
-      <button type="button" class="teacher-toggle" id="teacherToggle">For teachers ▾</button>
-      <div class="teacher-body" id="teacherBody" hidden>
-        <input type="text" id="studentName" class="teacher-input" placeholder="Student name (optional)" maxlength="60">
-        <div class="teacher-actions">
+    <div class="progress-summary" id="progressSummary"></div>
+    <div class="info-panels">
+      <button type="button" class="panel-toggle" id="teacherToggle">For teachers ▾</button>
+      <button type="button" class="panel-toggle" id="parentToggle">For parents ▾</button>
+      <button type="button" class="panel-toggle" id="importToggle">Import word list ▾</button>
+      <div class="panel-body" id="teacherBody" hidden>
+        <label class="panel-label" for="studentName">Student name (saved on this device)</label>
+        <input type="text" id="studentName" class="panel-input" placeholder="e.g. Sam" maxlength="60">
+        <div class="panel-actions">
           <button type="button" class="btn-ghost show" id="copyProgress">Copy progress</button>
-          <button type="button" class="btn-ghost show" id="downloadProgress">Download</button>
+          <button type="button" class="btn-ghost show" id="downloadProgress">Download report</button>
         </div>
-        <p class="teacher-hint">Progress stays on this device. Copy or download to share with a teacher.</p>
+        <div class="panel-divider"></div>
+        <p class="panel-section-title">Create a word list for your class</p>
+        <label class="panel-label" for="customListName">List name</label>
+        <input type="text" id="customListName" class="panel-input" placeholder="e.g. Week 5 spelling" maxlength="80">
+        <label class="panel-label" for="customListWords">Words or sentences (one per line)</label>
+        <textarea id="customListWords" class="panel-textarea" placeholder="because&#10;people&#10;The cat sat on the mat."></textarea>
+        <div class="panel-actions">
+          <button type="button" class="btn-ghost show" id="saveCustomList">Save list on this device</button>
+          <button type="button" class="btn-ghost show" id="copyShareLink">Copy share link</button>
+          <button type="button" class="btn-ghost show" id="downloadCustomList">Download list file</button>
+        </div>
+        <p class="panel-hint">Share the link or file via Google Classroom, Seesaw or email. Students tap <strong>Import word list</strong> — no file editing needed.</p>
+      </div>
+      <div class="panel-body" id="parentBody" hidden>
+        <div class="parent-stats" id="parentStats"></div>
+        <p class="panel-hint"><strong>Suggested routine:</strong> 10 minutes, 3 times per week. Start with unlocked levels and celebrate accuracy, not speed.</p>
+        <p class="panel-hint"><strong>Privacy:</strong> No account, no ads, no data sent online. Progress stays on this device unless you export it.</p>
+      </div>
+      <div class="panel-body" id="importBody" hidden>
+        <p class="panel-section-title">Got a list from your teacher?</p>
+        <label class="panel-label" for="importPaste">Paste a share link or words (one per line)</label>
+        <textarea id="importPaste" class="panel-textarea" placeholder="Paste link from teacher, or type words here…"></textarea>
+        <div class="panel-actions">
+          <button type="button" class="btn-ghost show" id="importWords">Import words</button>
+          <label class="file-btn">Upload list file<input type="file" id="importFile" accept=".json,application/json"></label>
+        </div>
+        <p class="panel-hint">A new <strong>Teacher word list</strong> level will appear. You do not need to edit any files.</p>
       </div>
     </div>
     <div class="levels" id="levelGrid"><div class="load-msg">Loading levels…</div></div>
@@ -190,10 +242,12 @@
       <div class="bar"><i id="barFill"></i></div>
       <span class="chip time" id="timer">0:00</span>
       <span class="chip accuracy" id="accuracyChip">100%</span>
+      <span class="chip wpm" id="wpmChip">— WPM</span>
       <span class="chip" id="count">1 / 1</span>
     </div>
     <div class="stage">
       <div class="word" id="word"></div>
+      <div class="encourage-msg" id="encourageMsg"></div>
       <div class="finger-hint" id="hint"><span class="swatch"></span><span id="hintText">Get ready…</span></div>
     </div>
     <div class="keyboard" id="keyboard"></div>
@@ -206,6 +260,7 @@
     <div class="big" id="ovEmoji">🎉</div>
     <h2 id="ovTitle">Level complete!</h2>
     <div class="stat" id="ovTime">Your time: 0:00</div>
+    <div class="stat" id="ovWpm"></div>
     <div class="stat accuracy-big" id="ovAccuracy"></div>
     <div id="ovBestWrap"></div>
     <div class="gap"></div>
@@ -218,12 +273,17 @@
 /* ---------- config ---------- */
 const YEAR_GROUPS=[3,4,5,6];
 const YEAR_PREF_KEY='typequest-selected-year-v1';
+const PROFILE_KEY='typequest-profile-v1';
+const customListKeyFor=y=>`typequest-custom-yr${y}-au-v1`;
 const dataUrlFor=y=>`data/yr${y}-au.json`;
 const storageKeyFor=y=>`typequest-yr${y}-au-v1`;
 let currentYear=3;
 let STORAGE_KEY=storageKeyFor(3);
 let appTitle='Type Quest — Year 3';
 let curriculumVersion='9.0';
+let displayLevels=[];
+let streak=0, lastPlayDate='', totalCharsTyped=0;
+const ENCOURAGE=['Try again!','Nearly!','You can do it!','Check the glowing key','Slow down and look'];
 
 /* ---------- fingers ---------- */
 const FINGERS={
@@ -235,7 +295,7 @@ const FINGERS={
 const KEYFINGER={
   q:'LP',w:'LR',e:'LM',r:'LI',t:'LI',y:'RI',u:'RI',i:'RM',o:'RR',p:'RP',
   a:'LP',s:'LR',d:'LM',f:'LI',g:'LI',h:'RI',j:'RI',k:'RM',l:'RR',
-  z:'LP',x:'LR',c:'LM',v:'LI',b:'LI',n:'RI',m:'RI',',':'RM','.':'RR','/':'RP',' ':'TH'
+  z:'LP',x:'LR',c:'LM',v:'LI',b:'LI',n:'RI',m:'RI',',':'RM','.':'RR','/':'RP',' ':'TH',"'":'RP'
 };
 const cssColor=code=>getComputedStyle(document.documentElement).getPropertyValue(FINGERS[code].v).trim();
 const COL=['LP','LR','LM','LI','RI','RM','RR','RP'].map(cssColor);
@@ -253,9 +313,53 @@ const isLetterLower=c=>/^[a-z]$/.test(c);
 
 function resetPlayState(){
   unlocked=0; lvl=0; item=0; pos=0; busy=false; shiftArmed=false;
-  hits=0; misses=0;
+  hits=0; misses=0; streak=0; lastPlayDate='';
   Object.keys(bestTimes).forEach(k=>delete bestTimes[k]);
   Object.keys(levelStats).forEach(k=>delete levelStats[k]);
+}
+function loadProfile(){
+  try{
+    const d=JSON.parse(localStorage.getItem(PROFILE_KEY)||'{}');
+    if(d.studentName) document.getElementById('studentName').value=d.studentName;
+  }catch(e){}
+}
+function saveProfile(){
+  try{
+    const d=JSON.parse(localStorage.getItem(PROFILE_KEY)||'{}');
+    d.studentName=document.getElementById('studentName').value.trim();
+    localStorage.setItem(PROFILE_KEY,JSON.stringify(d));
+  }catch(e){}
+}
+function loadCustomList(){
+  try{
+    const raw=localStorage.getItem(customListKeyFor(currentYear));
+    if(!raw) return null;
+    const d=JSON.parse(raw);
+    if(!Array.isArray(d.items)||!d.items.length) return null;
+    return d;
+  }catch(e){ return null; }
+}
+function saveCustomList(data){
+  try{
+    localStorage.setItem(customListKeyFor(currentYear),JSON.stringify(data));
+  }catch(e){ toast('Could not save list'); }
+}
+function parseWordsText(text){
+  return text.split(/\r?\n/).map(s=>s.trim()).filter(Boolean).slice(0,120);
+}
+function makeCustomLevel(custom){
+  return{
+    name:custom.name||'Teacher word list',
+    color:'RM', emoji:'📝', custom:true,
+    sub:`${custom.items.length} words from your teacher`,
+    curriculum:{codes:['Custom'],focus:'Teacher-assigned spelling and typing practice'},
+    items:custom.items.slice()
+  };
+}
+function rebuildDisplayLevels(){
+  displayLevels=LEVELS.slice();
+  const custom=loadCustomList();
+  if(custom) displayLevels.push(makeCustomLevel(custom));
 }
 function loadProgress(){
   try{
@@ -269,14 +373,117 @@ function loadProgress(){
     if(data.levelStats && typeof data.levelStats==='object'){
       Object.keys(data.levelStats).forEach(k=>{ levelStats[+k]=data.levelStats[k]; });
     }
+    if(typeof data.streak==='number') streak=data.streak;
+    if(data.lastPlayDate) lastPlayDate=data.lastPlayDate;
     document.getElementById('savedNote').hidden=false;
   }catch(e){ /* ignore corrupt storage */ }
 }
 function saveProgress(){
   try{
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ unlocked, bestTimes, levelStats }));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify({ unlocked, bestTimes, levelStats, streak, lastPlayDate }));
     document.getElementById('savedNote').hidden=false;
+    updateProgressSummary();
+    updateParentStats();
   }catch(e){ /* private browsing / quota */ }
+}
+function levelsCompleted(){
+  return Object.keys(bestTimes).filter(k=>+k<displayLevels.length).length;
+}
+function avgAccuracy(){
+  const stats=Object.values(levelStats);
+  if(!stats.length) return null;
+  const sum=stats.reduce((a,s)=>a+(parseInt(s.accuracy)||0),0);
+  return Math.round(sum/stats.length)+'%';
+}
+function updateProgressSummary(){
+  const el=document.getElementById('progressSummary');
+  if(!displayLevels.length){ el.innerHTML=''; return; }
+  const done=levelsCompleted();
+  const acc=avgAccuracy();
+  el.innerHTML=
+    `<span class="progress-pill"><strong>${done}</strong> / ${displayLevels.length} levels done</span>`+
+    (acc?`<span class="progress-pill">Avg accuracy <strong>${acc}</strong></span>`:'')+
+    (streak>1?`<span class="progress-pill">🔥 <strong>${streak}</strong> day streak</span>`:'');
+}
+function updateParentStats(){
+  const el=document.getElementById('parentStats');
+  if(!el) return;
+  const done=levelsCompleted();
+  const acc=avgAccuracy()||'—';
+  const unlockedN=Math.min(unlocked+1,displayLevels.length);
+  el.innerHTML=
+    `<div class="parent-stat"><span class="val">${done}</span><span class="lbl">Levels done</span></div>`+
+    `<div class="parent-stat"><span class="val">${acc}</span><span class="lbl">Avg accuracy</span></div>`+
+    `<div class="parent-stat"><span class="val">${unlockedN}</span><span class="lbl">Unlocked</span></div>`;
+}
+function bumpStreak(){
+  const today=new Date().toDateString();
+  if(lastPlayDate===today) return;
+  const y=new Date(); y.setDate(y.getDate()-1);
+  streak=lastPlayDate===y.toDateString()?streak+1:1;
+  lastPlayDate=today;
+}
+function encodeListPayload(payload){
+  return btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+}
+function decodeListPayload(str){
+  return JSON.parse(decodeURIComponent(escape(atob(str))));
+}
+function buildListPayload(name,items){
+  return{type:'typequest-list',version:1,name:name||'Teacher word list',yearGroup:currentYear,items};
+}
+function applyCustomList(name,items){
+  const cleaned=parseWordsText(Array.isArray(items)?items.join('\n'):String(items||''));
+  if(cleaned.length<1){ toast('Add at least one word'); return false; }
+  saveCustomList({name:name||'Teacher word list',items:cleaned,at:Date.now()});
+  rebuildDisplayLevels();
+  renderLevels();
+  updateProgressSummary();
+  updateParentStats();
+  toast('Word list ready — tap Teacher word list');
+  return true;
+}
+function getShareLink(){
+  const name=document.getElementById('customListName').value.trim()||'Teacher word list';
+  const items=parseWordsText(document.getElementById('customListWords').value);
+  if(!items.length){ toast('Add words first'); return ''; }
+  const base=location.href.split('#')[0].split('?')[0];
+  return base+'#list='+encodeURIComponent(encodeListPayload(buildListPayload(name,items)));
+}
+function importFromHash(){
+  const m=location.hash.match(/^#list=(.+)$/);
+  if(!m) return;
+  try{
+    const data=decodeListPayload(decodeURIComponent(m[1]));
+    if(data.type!=='typequest-list'||!data.items?.length) throw new Error('bad list');
+    if(data.yearGroup && YEAR_GROUPS.includes(data.yearGroup) && data.yearGroup!==currentYear){
+      saveProgress();
+      currentYear=data.yearGroup;
+      STORAGE_KEY=storageKeyFor(currentYear);
+      try{ localStorage.setItem(YEAR_PREF_KEY,String(currentYear)); }catch(e){}
+      loadProgress();
+      renderYearTabs();
+    }
+    applyCustomList(data.name,data.items);
+    document.getElementById('customListName').value=data.name||'';
+    document.getElementById('customListWords').value=data.items.join('\n');
+    history.replaceState(null,'',location.pathname+location.search);
+    toast('List imported from link');
+  }catch(e){ toast('Could not read share link'); }
+}
+function togglePanel(id,toggleId,openLabel,closedLabel){
+  const body=document.getElementById(id);
+  const btn=document.getElementById(toggleId);
+  const open=body.hidden;
+  ['teacherBody','parentBody','importBody'].forEach(pid=>{
+    if(pid!==id) document.getElementById(pid).hidden=true;
+  });
+  body.hidden=!open;
+  ['teacherToggle','parentToggle','importToggle'].forEach(tid=>{
+    const t=document.getElementById(tid);
+    if(tid===toggleId) t.textContent=open?openLabel:closedLabel;
+    else t.textContent=t.textContent.replace('▴','▾');
+  });
 }
 
 async function loadLevels(){
@@ -291,7 +498,15 @@ async function loadLevels(){
     curriculumVersion=data.curriculumVersion||'9.0';
     document.getElementById('appTitle').textContent='Type Quest';
     document.getElementById('leadTitle').textContent=`Pick a level — Year ${currentYear}`;
+    rebuildDisplayLevels();
     renderLevels();
+    updateProgressSummary();
+    updateParentStats();
+    const custom=loadCustomList();
+    if(custom){
+      document.getElementById('customListName').value=custom.name||'';
+      document.getElementById('customListWords').value=custom.items.join('\n');
+    }
   }catch(e){
     grid.innerHTML='<div class="load-msg">Could not load levels. Check your connection and refresh.</div>';
   }
@@ -327,7 +542,19 @@ async function switchYear(y){
 function curriculumTag(L){
   const codes=L.curriculum?.codes;
   if(!codes?.length) return '';
-  return `<div class="curriculum-tag">${codes.join(' · ')}</div>`;
+  const focus=L.curriculum?.focus?`<p class="curriculum-focus">${L.curriculum.focus}</p>`:'';
+  return `<div class="curriculum-tag">${codes.join(' · ')}</div>${focus}`;
+}
+function calcWpm(charCount,ms){
+  if(!ms||!charCount) return 0;
+  return Math.max(1,Math.round((charCount/5)/(ms/60000)));
+}
+function showEncourage(){
+  const el=document.getElementById('encourageMsg');
+  el.textContent=ENCOURAGE[Math.floor(Math.random()*ENCOURAGE.length)];
+  el.classList.add('on');
+  clearTimeout(showEncourage._id);
+  showEncourage._id=setTimeout(()=>el.classList.remove('on'),900);
 }
 
 /* ---------- export (teachers) ---------- */
@@ -349,16 +576,18 @@ function buildProgressReport(){
     'Exported '+new Date().toLocaleString('en-AU'),
     name?'Student: '+name:'',
     '',
-    'Levels unlocked: '+(unlocked+1)+' of '+LEVELS.length,
+    'Levels unlocked: '+(unlocked+1)+' of '+displayLevels.length,
+    streak>1?'Practice streak: '+streak+' days':'',
     ''
   ];
-  LEVELS.forEach((L,i)=>{
+  displayLevels.forEach((L,i)=>{
     let line=(i+1)+'. '+L.name+' — ';
     if(L.curriculum?.codes?.length) line+='['+L.curriculum.codes.join(', ')+'] ';
-    if(i>unlocked) line+='Locked';
+    if(L.custom) line+='(teacher list) ';
+    if(!L.custom && i>unlocked) line+='Locked';
     else if(bestTimes[i]!==undefined){
       line+='Best time: '+fmt(bestTimes[i]);
-      if(levelStats[i]) line+=', last accuracy: '+levelStats[i].accuracy;
+      if(levelStats[i]) line+=', last accuracy: '+levelStats[i].accuracy+(levelStats[i].wpm?', '+levelStats[i].wpm+' WPM':'');
     } else line+='Unlocked, not yet completed';
     lines.push(line);
   });
@@ -396,23 +625,80 @@ function downloadReport(){
 }
 
 document.getElementById('teacherToggle').onclick=()=>{
-  const body=document.getElementById('teacherBody');
-  const open=body.hidden;
-  body.hidden=!open;
-  document.getElementById('teacherToggle').textContent=open?'For teachers ▴':'For teachers ▾';
+  togglePanel('teacherBody','teacherToggle','For teachers ▴','For teachers ▾');
 };
+document.getElementById('parentToggle').onclick=()=>{
+  togglePanel('parentBody','parentToggle','For parents ▴','For parents ▾');
+  if(!document.getElementById('parentBody').hidden) updateParentStats();
+};
+document.getElementById('importToggle').onclick=()=>{
+  togglePanel('importBody','importToggle','Import word list ▴','Import word list ▾');
+};
+document.getElementById('studentName').addEventListener('input',saveProfile);
 document.getElementById('copyProgress').onclick=()=>{
-  if(!LEVELS.length){ toast('Levels still loading'); return; }
+  if(!displayLevels.length){ toast('Levels still loading'); return; }
   copyText(buildProgressReport());
 };
 document.getElementById('downloadProgress').onclick=()=>{
-  if(!LEVELS.length){ toast('Levels still loading'); return; }
+  if(!displayLevels.length){ toast('Levels still loading'); return; }
   downloadReport();
+};
+document.getElementById('saveCustomList').onclick=()=>{
+  const name=document.getElementById('customListName').value.trim();
+  const items=parseWordsText(document.getElementById('customListWords').value);
+  if(applyCustomList(name,items)) saveProfile();
+};
+document.getElementById('copyShareLink').onclick=()=>{
+  const link=getShareLink();
+  if(link) copyText(link);
+};
+document.getElementById('downloadCustomList').onclick=()=>{
+  const name=document.getElementById('customListName').value.trim()||'teacher-word-list';
+  const items=parseWordsText(document.getElementById('customListWords').value);
+  if(!items.length){ toast('Add words first'); return; }
+  const blob=new Blob([JSON.stringify(buildListPayload(name,items),null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=name.replace(/[^\w\-]+/g,'-').toLowerCase()+'.json'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+  toast('List file downloaded');
+};
+document.getElementById('importWords').onclick=()=>{
+  const raw=document.getElementById('importPaste').value.trim();
+  if(!raw){ toast('Paste a link or words'); return; }
+  if(raw.includes('#list=')){
+    location.hash=raw.slice(raw.indexOf('#list='));
+    importFromHash();
+    return;
+  }
+  if(raw.startsWith('http')&&raw.includes('list=')){
+    location.hash='#'+raw.split('#').pop();
+    importFromHash();
+    return;
+  }
+  applyCustomList('Imported words',raw);
+  document.getElementById('importPaste').value='';
+};
+document.getElementById('importFile').onchange=e=>{
+  const file=e.target.files?.[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const data=JSON.parse(reader.result);
+      const items=data.items||data.words;
+      if(!items?.length) throw new Error('no items');
+      applyCustomList(data.name||file.name.replace('.json',''),items);
+      document.getElementById('importPaste').value='';
+    }catch(err){ toast('Could not read file'); }
+  };
+  reader.readAsText(file);
+  e.target.value='';
 };
 /* ---------- keyboard ---------- */
 const ROWS=[
   ['q','w','e','r','t','y','u','i','o','p'],
-  ['a','s','d','f','g','h','j','k','l'],
+  ['a','s','d','f','g','h','j','k','l',"'"],
   ['z','x','c','v','b','n','m',',','.','/']
 ];
 const kb=document.getElementById('keyboard'); const keyEls={};
@@ -452,18 +738,24 @@ window.addEventListener('keydown',e=>{
   if(e.key===' ') e.preventDefault();
   if(e.key.length===1){ shiftArmed=false; shiftEl.classList.remove('armed'); pressChar(e.key); }
 });
+window.addEventListener('keyup',e=>{
+  if(e.key==='Shift'){ shiftArmed=false; shiftEl.classList.remove('armed'); refresh(); }
+});
 
 /* ---------- level select ---------- */
 const grid=document.getElementById('levelGrid');
 function renderLevels(){
   grid.innerHTML='';
-  LEVELS.forEach((L,i)=>{
-    const locked=i>unlocked;
-    const card=document.createElement('div'); card.className='lvl-card'+(locked?' locked':'');
+  displayLevels.forEach((L,i)=>{
+    const locked=!L.custom && i>unlocked;
+    const card=document.createElement('div');
+    card.className='lvl-card'+(locked?' locked':'')+(L.custom?' custom':'');
     card.style.setProperty('--c',levelColor(L));
-    card.innerHTML=`<div class="num">${i+1}</div><h3>${L.name}</h3><p>${L.sub}</p>`+
+    const completed=bestTimes[i]!==undefined;
+    card.innerHTML=`<div class="num">${L.custom?'📝':i+1}</div><h3>${L.name}</h3><p>${L.sub}</p>`+
       curriculumTag(L)+
-      (bestTimes[i]!==undefined?`<div class="best">⭐ Best ${fmt(bestTimes[i])}${levelStats[i]?.accuracy?' · 🎯 '+levelStats[i].accuracy:''}</div>`:'')+
+      (completed?`<div class="best">⭐ Best ${fmt(bestTimes[i])}${levelStats[i]?.accuracy?' · 🎯 '+levelStats[i].accuracy:''}</div>`+
+        `<div class="done-badge">${L.custom?'Practice again':'✓ Completed — tap to practice'}</div>`:'')+
       (locked?'<span class="lock">🔒</span>':'');
     if(!locked) card.addEventListener('click',()=>startLevel(i));
     grid.appendChild(card);
@@ -488,10 +780,13 @@ function startTimer(){startT=Date.now(); timerEl.textContent='0:00'; clearInterv
 function stopTimer(){clearInterval(timerId); timerId=null; return Date.now()-startT;}
 
 function startLevel(i){
-  lvl=i; item=0; pos=0; hits=0; misses=0; updateAccuracyDisplay(); shiftArmed=false; shiftEl.classList.remove('armed');
-  playOrder=shuffle(LEVELS[i].items.slice());
+  lvl=i; item=0; pos=0; hits=0; misses=0; totalCharsTyped=0; updateAccuracyDisplay();
+  shiftArmed=false; shiftEl.classList.remove('armed');
+  playOrder=shuffle(displayLevels[i].items.slice());
   selectScreen.style.display='none'; playScreen.classList.add('on');
-  levelTag.textContent=LEVELS[i].name; levelTag.style.display='inline-block'; backBtn.style.display='inline-block';
+  levelTag.textContent=displayLevels[i].name; levelTag.style.display='inline-block'; backBtn.style.display='inline-block';
+  document.getElementById('wpmChip').textContent='— WPM';
+  document.getElementById('encourageMsg').classList.remove('on');
   startTimer(); loadItem();
 }
 function loadItem(){
@@ -537,17 +832,22 @@ function pressChar(produced){
     const lk=target===' '?' ':target.toLowerCase(); const el=keyEls[lk];
     if(el){el.classList.add('hit'); setTimeout(()=>el.classList.remove('hit'),160);}
     pos++;
+    totalCharsTyped=hits+misses;
+    document.getElementById('wpmChip').textContent=calcWpm(totalCharsTyped,Date.now()-startT)+' WPM';
     if(pos>=text.length){
       busy=true; [...wordEl.children].forEach(s=>s.classList.add('done'));
       setTimeout(()=>{ busy=false; item++; if(item>=playOrder.length) finishLevel(); else loadItem(); },360);
     } else refresh();
   } else {
     misses++;
+    showEncourage();
     const lk=produced===' '?' ':(produced||'').toLowerCase(); const el=keyEls[lk];
     if(el){el.classList.add('miss'); setTimeout(()=>el.classList.remove('miss'),320);}
     refresh();
   }
   updateAccuracyDisplay();
+  totalCharsTyped=hits+misses;
+  document.getElementById('wpmChip').textContent=calcWpm(totalCharsTyped,Date.now()-startT)+' WPM';
 }
 
 /* ---------- finish ---------- */
@@ -559,31 +859,38 @@ const ovAccuracy=document.getElementById('ovAccuracy');
 const ovBestWrap=document.getElementById('ovBestWrap');
 const ovNext=document.getElementById('ovNext');
 const ovHome=document.getElementById('ovHome');
+const ovWpm=document.getElementById('ovWpm');
 function finishLevel(){
   const elapsed=stopTimer(); barFill.style.width='100%';
   const accuracy=fmtAccuracy(hits,misses);
+  const wpm=calcWpm(hits+misses,elapsed);
   let isBest=false;
   if(bestTimes[lvl]===undefined || elapsed<bestTimes[lvl]){ bestTimes[lvl]=elapsed; isBest=true; }
-  levelStats[lvl]={ time:elapsed, accuracy, at:Date.now() };
-  if(lvl+1>unlocked && lvl+1<LEVELS.length) unlocked=lvl+1;
+  levelStats[lvl]={ time:elapsed, accuracy, wpm, at:Date.now() };
+  if(lvl<LEVELS.length-1 && lvl+1>unlocked) unlocked=lvl+1;
+  bumpStreak();
   saveProgress();
   celebrate();
-  ovEmoji.textContent=LEVELS[lvl].emoji;
-  ovTitle.textContent=`${LEVELS[lvl].name} done!`;
+  ovEmoji.textContent=displayLevels[lvl].emoji;
+  ovTitle.textContent=`${displayLevels[lvl].name} done!`;
   ovTime.textContent=`Your time: ${fmt(elapsed)}`;
+  ovWpm.textContent=`Speed: ${wpm} WPM`;
   ovAccuracy.textContent=`🎯 Accuracy: ${accuracy}`;
   ovBestWrap.innerHTML=isBest?'<div class="newbest">⭐ New best time!</div>':`<div class="stat">Best: ${fmt(bestTimes[lvl])}</div>`;
-  const last=lvl>=LEVELS.length-1;
+  const last=lvl>=displayLevels.length-1;
   if(last){ ovNext.textContent='Play again'; ovNext.onclick=()=>{overlay.classList.remove('on'); startLevel(lvl);}; }
-  else { ovNext.textContent=`Start ${LEVELS[lvl+1].name}`; ovNext.onclick=()=>{overlay.classList.remove('on'); startLevel(lvl+1);}; }
+  else { ovNext.textContent=`Start ${displayLevels[lvl+1].name}`; ovNext.onclick=()=>{overlay.classList.remove('on'); startLevel(lvl+1);}; }
   setTimeout(()=>overlay.classList.add('on'),450);
 }
-ovHome.onclick=()=>{ overlay.classList.remove('on'); backToLevels(); };
 function backToLevels(){
   stopTimer();
   playScreen.classList.remove('on'); selectScreen.style.display='block';
-  levelTag.style.display='none'; backBtn.style.display='none'; renderLevels();
+  levelTag.style.display='none'; backBtn.style.display='none';
+  rebuildDisplayLevels();
+  renderLevels();
+  updateProgressSummary();
 }
+ovHome.onclick=()=>{ overlay.classList.remove('on'); backToLevels(); };
 backBtn.onclick=backToLevels;
 
 /* ---------- celebrations ---------- */
@@ -627,6 +934,8 @@ try{
   const savedYear=+localStorage.getItem(YEAR_PREF_KEY);
   if(YEAR_GROUPS.includes(savedYear)){ currentYear=savedYear; STORAGE_KEY=storageKeyFor(savedYear); }
 }catch(e){}
+importFromHash();
+loadProfile();
 loadProgress();
 renderYearTabs();
 loadLevels();
