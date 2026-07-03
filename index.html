@@ -282,13 +282,13 @@ const YEAR_GROUPS=[3,4,5,6];
 const YEAR_PREF_KEY='typequest-selected-year-v1';
 const PROFILE_KEY='typequest-profile-v1';
 const customListKeyFor=y=>`typequest-custom-yr${y}-au-v1`;
-const DATA_VERSION='11';
+const DATA_VERSION='12';
 const dataUrlFor=y=>`data/yr${y}-au.json?v=${DATA_VERSION}`;
 const storageKeyFor=y=>`typequest-yr${y}-au-v1`;
 let lockedYear=null;
 let currentYear=3;
 let STORAGE_KEY=storageKeyFor(3);
-let appTitle='Type Quest — Year 3';
+let appTitle='Type Quest';
 let curriculumVersion='9.0';
 let displayLevels=[];
 let streak=0, lastPlayDate='', totalCharsTyped=0;
@@ -331,9 +331,8 @@ function applyYearLock(){
   STORAGE_KEY=storageKeyFor(lockedYear);
   document.getElementById('yearTabsWrap').classList.add('locked');
   const badge=document.getElementById('yearLockBadge');
-  badge.hidden=false;
+  document.getElementById('yearLockBadge').hidden=false;
   badge.textContent='Year '+lockedYear+' edition';
-  document.getElementById('appTitle').textContent='Type Quest — Year '+lockedYear;
 }
 function resetPlayState(){
   unlocked=0; lvl=0; item=0; pos=0; busy=false; shiftArmed=false;
@@ -518,7 +517,7 @@ async function loadLevels(){
     if(!res.ok) throw new Error('Could not load levels');
     const data=await res.json();
     LEVELS=data.levels||[];
-    appTitle=data.title||`Type Quest — Year ${currentYear}`;
+    appTitle='Type Quest';
     curriculumVersion=data.curriculumVersion||'9.0';
     document.getElementById('appTitle').textContent='Type Quest';
     document.getElementById('leadTitle').textContent=`Pick a level — Year ${currentYear}`;
@@ -597,7 +596,7 @@ function updateAccuracyDisplay(){
 function buildProgressReport(){
   const name=document.getElementById('studentName').value.trim();
   const lines=[
-    appTitle+' — Progress summary',
+    appTitle+' — Year '+currentYear+' progress summary',
     'Australian Curriculum v'+curriculumVersion+' — English',
     'Exported '+new Date().toLocaleString('en-AU'),
     name?'Student: '+name:'',

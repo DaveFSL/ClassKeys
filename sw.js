@@ -1,5 +1,5 @@
-const CACHE='typequest-v11';
-const DATA_VERSION='11';
+const CACHE='typequest-v12';
+const DATA_VERSION='12';
 const ASSETS=[
   './',
   './index.html',
@@ -23,7 +23,7 @@ self.addEventListener('fetch',e=>{
   if(e.request.method!=='GET') return;
   const url=new URL(e.request.url);
   const isData=url.pathname.includes('/data/') && url.pathname.endsWith('.json');
-  const isAppShell=url.pathname.endsWith('/index.html') || url.pathname.endsWith('/TypeQuest-Yr3/') || url.pathname.endsWith('/TypeQuest-Yr3');
+  const isAppShell=url.pathname.endsWith('/index.html')||url.pathname.endsWith('/TypeQuest/')||url.pathname.endsWith('/TypeQuest')||url.pathname.endsWith('/TypeQuest-Yr3/')||url.pathname.endsWith('/TypeQuest-Yr3');
   if(isData || isAppShell){
     e.respondWith(
       fetch(e.request).then(res=>{
