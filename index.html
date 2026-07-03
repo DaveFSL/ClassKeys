@@ -89,6 +89,10 @@
     background:var(--panel); border:1.5px solid var(--line); border-radius:999px; padding:8px 18px; cursor:pointer;}
   .year-tab:hover{color:var(--ink);}
   .year-tab.on{color:#fff; background:var(--RM); border-color:var(--RM);}
+  .year-lock-badge{text-align:center; margin:0 0 12px; font-family:'Fredoka',sans-serif; font-weight:600; font-size:14px; color:var(--RM);
+    background:#eef5fc; border-radius:999px; padding:6px 16px; display:inline-block; width:auto; margin-left:auto; margin-right:auto;}
+  .year-tabs-wrap{text-align:center; margin:0 0 14px;}
+  .year-tabs-wrap.locked .year-tabs{display:none;}
   .curriculum-tag{display:inline-block; margin-top:8px; font-family:'Nunito',sans-serif; font-size:11px; font-weight:700;
     color:var(--RM); background:#eef5fc; border-radius:999px; padding:3px 9px; line-height:1.3;}
   .curriculum-note{text-align:center; margin:-2px 0 10px; color:var(--ink-soft); font-size:12px; font-weight:600;}
@@ -191,7 +195,10 @@
   <section id="selectScreen">
     <div class="lead"><h2 id="leadTitle">Pick a level</h2><p>Watch for the glowing key, then tap it or press it.</p></div>
     <p class="curriculum-note">Aligned to Australian Curriculum v9.0 — English</p>
-    <div class="year-tabs" id="yearTabs" role="tablist" aria-label="Year group"></div>
+    <div class="year-tabs-wrap" id="yearTabsWrap">
+      <div class="year-tabs" id="yearTabs" role="tablist" aria-label="Year group"></div>
+      <p class="year-lock-badge" id="yearLockBadge" hidden></p>
+    </div>
     <p class="saved-note" id="savedNote" hidden>Progress is saved on this device.</p>
     <div class="progress-summary" id="progressSummary"></div>
     <div class="info-panels">
@@ -275,9 +282,10 @@ const YEAR_GROUPS=[3,4,5,6];
 const YEAR_PREF_KEY='typequest-selected-year-v1';
 const PROFILE_KEY='typequest-profile-v1';
 const customListKeyFor=y=>`typequest-custom-yr${y}-au-v1`;
-const DATA_VERSION='10';
+const DATA_VERSION='11';
 const dataUrlFor=y=>`data/yr${y}-au.json?v=${DATA_VERSION}`;
 const storageKeyFor=y=>`typequest-yr${y}-au-v1`;
+let lockedYear=null;
 let currentYear=3;
 let STORAGE_KEY=storageKeyFor(3);
 let appTitle='Type Quest — Year 3';
@@ -312,6 +320,21 @@ const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
 const isLetterLower=c=>/^[a-z]$/.test(c);
 
+function getYearLockFromUrl(){
+  const y=+new URLSearchParams(location.search).get('year');
+  return YEAR_GROUPS.includes(y)?y:null;
+}
+function applyYearLock(){
+  lockedYear=getYearLockFromUrl();
+  if(!lockedYear) return;
+  currentYear=lockedYear;
+  STORAGE_KEY=storageKeyFor(lockedYear);
+  document.getElementById('yearTabsWrap').classList.add('locked');
+  const badge=document.getElementById('yearLockBadge');
+  badge.hidden=false;
+  badge.textContent='Year '+lockedYear+' edition';
+  document.getElementById('appTitle').textContent='Type Quest — Year '+lockedYear;
+}
 function resetPlayState(){
   unlocked=0; lvl=0; item=0; pos=0; busy=false; shiftArmed=false;
   hits=0; misses=0; streak=0; lastPlayDate='';
@@ -513,6 +536,7 @@ async function loadLevels(){
   }
 }
 function renderYearTabs(){
+  if(lockedYear) return;
   const wrap=document.getElementById('yearTabs');
   wrap.innerHTML='';
   YEAR_GROUPS.forEach(y=>{
@@ -527,6 +551,7 @@ function renderYearTabs(){
   });
 }
 async function switchYear(y){
+  if(lockedYear) return;
   if(playScreen.classList.contains('on')){
     overlay.classList.remove('on');
     backToLevels();
@@ -932,8 +957,11 @@ function runFx(type){
 }
 
 try{
-  const savedYear=+localStorage.getItem(YEAR_PREF_KEY);
-  if(YEAR_GROUPS.includes(savedYear)){ currentYear=savedYear; STORAGE_KEY=storageKeyFor(savedYear); }
+  applyYearLock();
+  if(!lockedYear){
+    const savedYear=+localStorage.getItem(YEAR_PREF_KEY);
+    if(YEAR_GROUPS.includes(savedYear)){ currentYear=savedYear; STORAGE_KEY=storageKeyFor(savedYear); }
+  }
 }catch(e){}
 importFromHash();
 loadProfile();
