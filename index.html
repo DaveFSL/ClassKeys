@@ -224,6 +224,7 @@
           <button type="button" class="btn-ghost show" id="saveCustomList">Save list on this device</button>
           <button type="button" class="btn-ghost show" id="copyShareLink">Copy share link</button>
           <button type="button" class="btn-ghost show" id="downloadCustomList">Download list file</button>
+          <button type="button" class="btn-ghost show" id="removeCustomListTeacher">Remove saved list</button>
         </div>
         <p class="panel-hint">Share the link or file via Google Classroom, Seesaw or email. Students tap <strong>Import word list</strong> — no file editing needed.</p>
       </div>
@@ -239,6 +240,7 @@
         <div class="panel-actions">
           <button type="button" class="btn-ghost show" id="importWords">Import words</button>
           <label class="file-btn">Upload list file<input type="file" id="importFile" accept=".json,application/json"></label>
+          <button type="button" class="btn-ghost show" id="removeCustomListImport">Remove word list</button>
         </div>
         <p class="panel-hint">A new <strong>Teacher word list</strong> level will appear. You do not need to edit any files.</p>
       </div>
@@ -395,6 +397,25 @@ function saveCustomList(data){
   try{
     localStorage.setItem(customListKeyFor(currentYear),JSON.stringify(data));
   }catch(e){ toast('Could not save list'); }
+}
+function removeCustomList(){
+  if(!loadCustomList()){ toast('No list to remove'); return false; }
+  const customIdx=displayLevels.findIndex(L=>L.custom);
+  try{ localStorage.removeItem(customListKeyFor(currentYear)); }catch(e){}
+  if(customIdx>=0){
+    delete bestTimes[customIdx];
+    delete levelStats[customIdx];
+  }
+  document.getElementById('customListName').value='';
+  document.getElementById('customListWords').value='';
+  document.getElementById('importPaste').value='';
+  rebuildDisplayLevels();
+  renderLevels();
+  updateProgressSummary();
+  updateParentStats();
+  saveProgress();
+  toast('Word list removed');
+  return true;
 }
 function parseWordsText(text){
   return text.split(/\r?\n/).map(s=>s.trim()).filter(Boolean).slice(0,120);
@@ -717,6 +738,8 @@ document.getElementById('downloadCustomList').onclick=()=>{
   setTimeout(()=>URL.revokeObjectURL(url),1500);
   toast('List file downloaded');
 };
+document.getElementById('removeCustomListTeacher').onclick=removeCustomList;
+document.getElementById('removeCustomListImport').onclick=removeCustomList;
 document.getElementById('importWords').onclick=()=>{
   const raw=document.getElementById('importPaste').value.trim();
   if(!raw){ toast('Paste a link or words'); return; }
