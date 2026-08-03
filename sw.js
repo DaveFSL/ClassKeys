@@ -1,5 +1,5 @@
-const CACHE='classkeys-v16';
-const DATA_VERSION='14';
+const CACHE='classkeys-v17';
+const DATA_VERSION='15';
 const ASSETS=[
   './',
   './index.html',
@@ -7,6 +7,7 @@ const ASSETS=[
   './favicon.png',
   './favicon-16.png',
   './apple-touch-icon.png',
+  `./data/yr2-au.json?v=${DATA_VERSION}`,
   `./data/yr3-au.json?v=${DATA_VERSION}`,
   `./data/yr4-au.json?v=${DATA_VERSION}`,
   `./data/yr5-au.json?v=${DATA_VERSION}`,

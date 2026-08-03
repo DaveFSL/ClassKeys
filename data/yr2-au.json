@@ -1,0 +1,119 @@
+{
+  "locale": "en-AU",
+  "yearGroup": 2,
+  "title": "ClassKeys",
+  "curriculumVersion": "9.0",
+  "curriculumSubject": "English, Mathematics, Science, HASS, Technologies, HPE",
+  "levels": [
+    {
+      "name": "Home Row",
+      "color": "LM",
+      "emoji": "🏠",
+      "sub": "Keyboard fluency for writing across all subjects",
+      "curriculum": {
+        "codes": ["AC9E2LY06"],
+        "focus": "Create short written texts in English and other learning areas"
+      },
+      "items": ["f", "j", "d", "k", "a", "s", "l", "g", "h", "as", "add", "dad", "sad", "ask", "all", "lad", "fall", "glass", "salad", "flash"]
+    },
+    {
+      "name": "High-Frequency Words",
+      "color": "LI",
+      "emoji": "📖",
+      "sub": "Common words teachers recommend — AC9 English Literacy",
+      "curriculum": {
+        "codes": ["AC9E2LY11"],
+        "focus": "Read and write an increasing number of high-frequency words"
+      },
+      "items": ["was", "here", "home", "who", "why", "what", "said", "they", "their", "every", "only", "any", "many", "after", "about", "great", "these", "other", "there", "were"]
+    },
+    {
+      "name": "Family & People",
+      "color": "LR",
+      "emoji": "👨‍👩‍👧",
+      "sub": "Family, school and community vocabulary",
+      "curriculum": {
+        "codes": ["AC9E2LY11", "AC9H2K01"],
+        "focus": "High-frequency words about people, places and belonging"
+      },
+      "items": ["friend", "family", "mother", "father", "brother", "sister", "cousin", "people", "woman", "women", "house", "school", "together", "remember", "work", "build", "animal", "really", "something", "ask"]
+    },
+    {
+      "name": "Tricky Spellings",
+      "color": "RP",
+      "emoji": "🎯",
+      "sub": "Irregular and less common patterns — teacher shared list",
+      "curriculum": {
+        "codes": ["AC9E2LY10", "AC9E2LY11"],
+        "focus": "Read and write words with common and less common spelling patterns"
+      },
+      "items": ["because", "through", "thought", "bought", "caught", "different", "surprise", "favourite", "February", "tomorrow", "minute", "interesting", "decided", "believe", "laugh", "alright", "always", "already", "another", "across"]
+    },
+    {
+      "name": "Contractions & Tricky",
+      "color": "RR",
+      "emoji": "✏️",
+      "sub": "Contractions and helper words teachers say are hard",
+      "curriculum": {
+        "codes": ["AC9E2LY11", "AC9E2LA06"],
+        "focus": "High-frequency words including contractions in familiar texts"
+      },
+      "items": ["where", "before", "until", "know", "saw", "could", "would", "should", "though", "around", "lose", "can't", "don't", "couldn't", "shouldn't", "wouldn't"]
+    },
+    {
+      "name": "Maths Words",
+      "color": "RM",
+      "emoji": "🔢",
+      "sub": "Number, shape and measurement vocabulary",
+      "curriculum": {
+        "codes": ["AC9M2N01", "AC9M2N02", "AC9M2M01"],
+        "focus": "Counting, addition, subtraction, length and shape"
+      },
+      "items": ["add", "plus", "minus", "equal", "share", "count", "number", "half", "double", "group", "pattern", "shape", "circle", "square", "triangle", "clock", "time", "graph", "length", "metre"]
+    },
+    {
+      "name": "Science Words",
+      "color": "RI",
+      "emoji": "🔬",
+      "sub": "Living things and changes to materials",
+      "curriculum": {
+        "codes": ["AC9S2U01", "AC9S2B01"],
+        "focus": "Living things, growth and changes to materials"
+      },
+      "items": ["living", "plant", "animal", "grow", "change", "push", "pull", "water", "soil", "light", "shadow", "observe", "weather", "material", "heat", "cool", "solid", "liquid", "habitat", "body"]
+    },
+    {
+      "name": "HASS Words",
+      "color": "LR",
+      "emoji": "🌏",
+      "sub": "Community, place and culture",
+      "curriculum": {
+        "codes": ["AC9H2K01", "AC9H2G01"],
+        "focus": "Family, local places and how communities change"
+      },
+      "items": ["community", "place", "map", "past", "present", "rule", "fair", "Country", "culture", "celebrate", "special", "neighbour", "belong", "local", "season", "weather", "help", "respect", "change", "story"]
+    },
+    {
+      "name": "Capitals & Places",
+      "color": "LP",
+      "emoji": "🔠",
+      "sub": "Proper nouns — names, days and months",
+      "curriculum": {
+        "codes": ["AC9E2LA08"],
+        "focus": "Capital letters for names, days, months and places"
+      },
+      "items": ["Sam", "Emma", "Jack", "Lily", "Monday", "Friday", "February", "March", "April", "Brisbane", "Australia", "Sydney", "Melbourne", "Perth", "Tasmania", "Anangu", "Kaurna", "Wurundjeri", "school", "home"]
+    },
+    {
+      "name": "Full Sentences",
+      "color": "RI",
+      "emoji": "🏆",
+      "sub": "Sentences with teacher tricky words and punctuation",
+      "curriculum": {
+        "codes": ["AC9E2LY06", "AC9E2LA06"],
+        "focus": "Write short sentences using high-frequency and tricky words"
+      },
+      "items": ["I was at home.", "My friend said hello.", "We go to school.", "Who was there?", "What did you see?", "They were happy.", "My mother and father.", "I can't wait.", "Don't run inside.", "We remember our family."]
+    }
+  ]
+}
