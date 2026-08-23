@@ -137,7 +137,7 @@
 
   .keyboard{width:100%; max-width:720px; margin:0 auto; display:flex; flex-direction:column; gap:8px; padding-bottom:8px;}
   .krow{display:flex; justify-content:center; gap:8px;}
-  .krow.r2{padding:0 18px;} .krow.r3{padding:0 36px;}
+  .krow.r2{padding:0;} .krow.r3{padding:0 28px;}
   .key{flex:1 1 0; min-width:0; aspect-ratio:1/1.08; max-width:60px; background:var(--panel);
     border:1.5px solid var(--line); border-bottom:4px solid var(--fc,#dde6ef); border-radius:12px;
     display:grid; place-items:center; font-family:'Fredoka',sans-serif; font-weight:500; font-size:clamp(15px,2.4vw,21px);
@@ -177,7 +177,7 @@
 
   @media (max-width:560px){
     .levels{grid-template-columns:repeat(2,1fr);}
-    .krow.r2{padding:0 10px;} .krow.r3{padding:0 20px;} .key{border-radius:10px;}
+    .krow.r2{padding:0;} .krow.r3{padding:0 12px;} .key{border-radius:10px;}
   }
   @media (max-width:380px){ .levels{grid-template-columns:1fr;} }
   @media (prefers-reduced-motion:reduce){ *{animation:none!important; transition:none!important;} }
@@ -231,7 +231,7 @@
       <div class="panel-body" id="parentBody" hidden>
         <div class="parent-stats" id="parentStats"></div>
         <p class="panel-hint"><strong>Suggested routine:</strong> 10 minutes, 3 times per week. Start with unlocked levels and celebrate accuracy, not speed.</p>
-        <p class="panel-hint"><strong>Privacy:</strong> No account, no ads, no data sent online. Progress stays on this device unless you export it.</p>
+        <p class="panel-hint"><strong>Privacy:</strong> No account, no ads, no tracking. No personal data ever leaves the device — progress is stored on this device only, unless you choose to save a backup.</p>
       </div>
       <div class="panel-body" id="importBody" hidden>
         <p class="panel-section-title">Got a list from your teacher?</p>
@@ -286,7 +286,7 @@ const YEAR_GROUPS=[2,3,4,5,6];
 const YEAR_PREF_KEY='classkeys-selected-year-v1';
 const PROFILE_KEY='classkeys-profile-v1';
 const customListKeyFor=y=>`classkeys-custom-yr${y}-au-v1`;
-const DATA_VERSION='15';
+const DATA_VERSION='16';
 const dataUrlFor=y=>`data/yr${y}-au.json?v=${DATA_VERSION}`;
 const storageKeyFor=y=>`classkeys-yr${y}-au-v1`;
 const LEGACY_KEYS=[
@@ -310,13 +310,14 @@ function migrateLegacyStorage(){
 function isListPayload(data){
   return data&&(data.type==='classkeys-list'||data.type==='typequest-list')&&data.items?.length;
 }
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let lockedYear=null;
 let currentYear=3;
 let STORAGE_KEY=storageKeyFor(3);
 let appTitle='ClassKeys';
 let curriculumVersion='9.0';
 let displayLevels=[];
-let streak=0, lastPlayDate='', totalCharsTyped=0;
+let streak=0, lastPlayDate='';
 const ENCOURAGE=['Try again!','Nearly!','You can do it!','Check the glowing key','Slow down and look'];
 
 /* ---------- fingers ---------- */
@@ -328,9 +329,14 @@ const FINGERS={
 };
 const KEYFINGER={
   q:'LP',w:'LR',e:'LM',r:'LI',t:'LI',y:'RI',u:'RI',i:'RM',o:'RR',p:'RP',
-  a:'LP',s:'LR',d:'LM',f:'LI',g:'LI',h:'RI',j:'RI',k:'RM',l:'RR',
+  a:'LP',s:'LR',d:'LM',f:'LI',g:'LI',h:'RI',j:'RI',k:'RM',l:'RR',';':'RP',
   z:'LP',x:'LR',c:'LM',v:'LI',b:'LI',n:'RI',m:'RI',',':'RM','.':'RR','/':'RP',' ':'TH',"'":'RP'
 };
+const SHIFTED={'!':'1','@':'2','#':'3','$':'4','%':'5','^':'6','&':'7','*':'8','(':'9',')':'0',
+  '_':'-','+':'=','{':'[','}':']','|':'\\',':':';','"':"'",'<':',','>':'.','?':'/','~':'`'};
+const UNSHIFTED=Object.fromEntries(Object.entries(SHIFTED).map(([s,b])=>[b,s]));
+const needsShift=c=>/[A-Z]/.test(c)||c in SHIFTED;
+const baseKey=c=>SHIFTED[c]||c.toLowerCase();
 const cssColor=code=>getComputedStyle(document.documentElement).getPropertyValue(FINGERS[code].v).trim();
 const COL=['LP','LR','LM','LI','RI','RM','RR','RP'].map(cssColor);
 const levelColor=l=>getComputedStyle(document.documentElement).getPropertyValue('--'+l.color).trim();
@@ -422,7 +428,7 @@ function parseWordsText(text){
 }
 function makeCustomLevel(custom){
   return{
-    name:custom.name||'Teacher word list',
+    name:String(custom.name||'Teacher word list').slice(0,80),
     color:'RM', emoji:'📝', custom:true,
     sub:`${custom.items.length} words from your teacher`,
     curriculum:{codes:['Custom'],focus:'Teacher-assigned spelling and typing practice'},
@@ -465,6 +471,14 @@ function levelsCompleted(){
 function avgAccuracy(){
   const stats=Object.values(levelStats);
   if(!stats.length) return null;
+  const allRaw=stats.every(s=>typeof s.hits==='number'&&typeof s.misses==='number');
+  if(allRaw){
+    const hitsSum=stats.reduce((a,s)=>a+s.hits,0);
+    const missesSum=stats.reduce((a,s)=>a+s.misses,0);
+    const total=hitsSum+missesSum;
+    if(!total) return '100%';
+    return Math.round(hitsSum/total*100)+'%';
+  }
   const sum=stats.reduce((a,s)=>a+(parseInt(s.accuracy)||0),0);
   return Math.round(sum/stats.length)+'%';
 }
@@ -508,7 +522,8 @@ function buildListPayload(name,items){
 function applyCustomList(name,items){
   const cleaned=parseWordsText(Array.isArray(items)?items.join('\n'):String(items||''));
   if(cleaned.length<1){ toast('Add at least one word'); return false; }
-  saveCustomList({name:name||'Teacher word list',items:cleaned,at:Date.now()});
+  const listName=String(name||'Teacher word list').slice(0,80);
+  saveCustomList({name:listName,items:cleaned,at:Date.now()});
   rebuildDisplayLevels();
   renderLevels();
   updateProgressSummary();
@@ -617,8 +632,8 @@ async function switchYear(y){
 function curriculumTag(L){
   const codes=L.curriculum?.codes;
   if(!codes?.length) return '';
-  const focus=L.curriculum?.focus?`<p class="curriculum-focus">${L.curriculum.focus}</p>`:'';
-  return `<div class="curriculum-tag">${codes.join(' · ')}</div>${focus}`;
+  const focus=L.curriculum?.focus?`<p class="curriculum-focus">${esc(L.curriculum.focus)}</p>`:'';
+  return `<div class="curriculum-tag">${esc(codes.join(' · '))}</div>${focus}`;
 }
 function calcWpm(charCount,ms){
   if(!ms||!charCount) return 0;
@@ -775,7 +790,7 @@ document.getElementById('importFile').onchange=e=>{
 /* ---------- keyboard ---------- */
 const ROWS=[
   ['q','w','e','r','t','y','u','i','o','p'],
-  ['a','s','d','f','g','h','j','k','l',"'"],
+  ['a','s','d','f','g','h','j','k','l',';',"'"],
   ['z','x','c','v','b','n','m',',','.','/']
 ];
 const kb=document.getElementById('keyboard'); const keyEls={};
@@ -804,7 +819,7 @@ kb.addEventListener('pointerdown',e=>{
   const k=el.dataset.key;
   if(k==='Shift'){ shiftArmed=!shiftArmed; shiftEl.classList.toggle('armed',shiftArmed); refresh(); return; }
   if(k==='Backspace'){ pressBackspace(); return; }
-  let c=k; if(shiftArmed && isLetterLower(c)) c=c.toUpperCase();
+  let c=k; if(shiftArmed){ if(isLetterLower(c)) c=c.toUpperCase(); else if(c in UNSHIFTED) c=UNSHIFTED[c]; }
   shiftArmed=false; shiftEl.classList.remove('armed');
   pressChar(c);
 });
@@ -829,9 +844,9 @@ function renderLevels(){
     card.className='lvl-card'+(locked?' locked':'')+(L.custom?' custom':'');
     card.style.setProperty('--c',levelColor(L));
     const completed=bestTimes[i]!==undefined;
-    card.innerHTML=`<div class="num">${L.custom?'📝':i+1}</div><h3>${L.name}</h3><p>${L.sub}</p>`+
+    card.innerHTML=`<div class="num">${L.custom?'📝':i+1}</div><h3>${esc(L.name)}</h3><p>${esc(L.sub)}</p>`+
       curriculumTag(L)+
-      (completed?`<div class="best">⭐ Best ${fmt(bestTimes[i])}${levelStats[i]?.accuracy?' · 🎯 '+levelStats[i].accuracy:''}</div>`+
+      (completed?`<div class="best">⭐ Best ${fmt(bestTimes[i])}${levelStats[i]?.accuracy?' · 🎯 '+esc(levelStats[i].accuracy):''}</div>`+
         `<div class="done-badge">${L.custom?'Practice again':'✓ Completed — tap to practice'}</div>`:'')+
       (locked?'<span class="lock">🔒</span>':'');
     if(!locked) card.addEventListener('click',()=>startLevel(i));
@@ -857,7 +872,7 @@ function startTimer(){startT=Date.now(); timerEl.textContent='0:00'; clearInterv
 function stopTimer(){clearInterval(timerId); timerId=null; return Date.now()-startT;}
 
 function startLevel(i){
-  lvl=i; item=0; pos=0; hits=0; misses=0; totalCharsTyped=0; updateAccuracyDisplay();
+  lvl=i; item=0; pos=0; hits=0; misses=0; updateAccuracyDisplay();
   shiftArmed=false; shiftEl.classList.remove('armed');
   playOrder=shuffle(displayLevels[i].items.slice());
   selectScreen.style.display='none'; playScreen.classList.add('on');
@@ -881,36 +896,38 @@ function refresh(){
   [...chars].forEach((s,idx)=>{ s.classList.toggle('done',idx<pos); s.classList.toggle('current',idx===pos); });
   Object.values(keyEls).forEach(k=>k.classList.remove('next')); shiftEl.classList.remove('next'); backEl.classList.remove('next');
   const target=text[pos]; if(target===undefined) return;
-  const isUpper=/[A-Z]/.test(target);
+  const shiftNeeded=needsShift(target);
   let fingerCode, nextEl;
-  if(isUpper && !shiftArmed){ nextEl=shiftEl; fingerCode='LP'; }
-  else { const lk=target===' '?' ':target.toLowerCase(); nextEl=keyEls[lk]; fingerCode=KEYFINGER[lk]||'TH'; }
+  if(shiftNeeded && !shiftArmed){ nextEl=shiftEl; fingerCode='LP'; }
+  else { const lk=target===' '?' ':baseKey(target); nextEl=keyEls[lk]; fingerCode=KEYFINGER[lk]||'TH'; }
   if(nextEl) nextEl.classList.add('next');
   const fc=cssColor(fingerCode);
   const curChar=chars[pos]; if(curChar) curChar.style.setProperty('--cur',fc);
   swatch.style.background=fc;
-  if(isUpper && !shiftArmed) hintText.textContent='hold Shift · left little finger';
-  else if(isUpper && shiftArmed) hintText.textContent='now '+FINGERS[fingerCode].name;
+  if(shiftNeeded && !shiftArmed) hintText.textContent='hold Shift · left little finger';
+  else if(shiftNeeded && shiftArmed) hintText.textContent='now '+FINGERS[fingerCode].name;
   else hintText.textContent=FINGERS[fingerCode].name;
 }
 function pressBackspace(){
   if(busy || !playScreen.classList.contains('on')) return;
   if(pos<=0) return;
   pos--;
+  hits=Math.max(0,hits-1);
   backEl.classList.add('hit');
   setTimeout(()=>backEl.classList.remove('hit'),160);
   refresh();
+  updateAccuracyDisplay();
+  document.getElementById('wpmChip').textContent=calcWpm(hits,Date.now()-startT)+' WPM';
 }
 function pressChar(produced){
   if(busy || !playScreen.classList.contains('on')) return;
   const text=playOrder[item]; const target=text[pos]; if(target===undefined) return;
   if(produced===target){
     hits++;
-    const lk=target===' '?' ':target.toLowerCase(); const el=keyEls[lk];
+    const lk=target===' '?' ':baseKey(target); const el=keyEls[lk];
     if(el){el.classList.add('hit'); setTimeout(()=>el.classList.remove('hit'),160);}
     pos++;
-    totalCharsTyped=hits+misses;
-    document.getElementById('wpmChip').textContent=calcWpm(totalCharsTyped,Date.now()-startT)+' WPM';
+    document.getElementById('wpmChip').textContent=calcWpm(hits,Date.now()-startT)+' WPM';
     if(pos>=text.length){
       busy=true; [...wordEl.children].forEach(s=>s.classList.add('done'));
       setTimeout(()=>{ busy=false; item++; if(item>=playOrder.length) finishLevel(); else loadItem(); },360);
@@ -918,13 +935,12 @@ function pressChar(produced){
   } else {
     misses++;
     showEncourage();
-    const lk=produced===' '?' ':(produced||'').toLowerCase(); const el=keyEls[lk];
+    const lk=produced===' '?' ':baseKey(produced||''); const el=keyEls[lk];
     if(el){el.classList.add('miss'); setTimeout(()=>el.classList.remove('miss'),320);}
     refresh();
   }
   updateAccuracyDisplay();
-  totalCharsTyped=hits+misses;
-  document.getElementById('wpmChip').textContent=calcWpm(totalCharsTyped,Date.now()-startT)+' WPM';
+  document.getElementById('wpmChip').textContent=calcWpm(hits,Date.now()-startT)+' WPM';
 }
 
 /* ---------- finish ---------- */
@@ -940,10 +956,10 @@ const ovWpm=document.getElementById('ovWpm');
 function finishLevel(){
   const elapsed=stopTimer(); barFill.style.width='100%';
   const accuracy=fmtAccuracy(hits,misses);
-  const wpm=calcWpm(hits+misses,elapsed);
+  const wpm=calcWpm(hits,elapsed);
   let isBest=false;
   if(bestTimes[lvl]===undefined || elapsed<bestTimes[lvl]){ bestTimes[lvl]=elapsed; isBest=true; }
-  levelStats[lvl]={ time:elapsed, accuracy, wpm, at:Date.now() };
+  levelStats[lvl]={ time:elapsed, accuracy, wpm, hits, misses, at:Date.now() };
   if(lvl<LEVELS.length-1 && lvl+1>unlocked) unlocked=lvl+1;
   bumpStreak();
   saveProgress();
