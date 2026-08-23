@@ -821,6 +821,7 @@ kb.addEventListener('pointerdown',e=>{
   if(k==='Backspace'){ pressBackspace(); return; }
   let c=k; if(shiftArmed){ if(isLetterLower(c)) c=c.toUpperCase(); else if(c in UNSHIFTED) c=UNSHIFTED[c]; }
   shiftArmed=false; shiftEl.classList.remove('armed');
+  updateKeyLegends();
   pressChar(c);
 });
 window.addEventListener('keydown',e=>{
@@ -828,7 +829,7 @@ window.addEventListener('keydown',e=>{
   if(e.key==='Shift'){ shiftArmed=true; shiftEl.classList.add('armed'); refresh(); return; }
   if(e.key==='Backspace'){ e.preventDefault(); pressBackspace(); return; }
   if(e.key===' ') e.preventDefault();
-  if(e.key.length===1){ shiftArmed=false; shiftEl.classList.remove('armed'); pressChar(e.key); }
+  if(e.key.length===1){ shiftArmed=false; shiftEl.classList.remove('armed'); updateKeyLegends(); pressChar(e.key); }
 });
 window.addEventListener('keyup',e=>{
   if(e.key==='Shift'){ shiftArmed=false; shiftEl.classList.remove('armed'); refresh(); }
@@ -891,7 +892,18 @@ function loadItem(){
   barFill.style.width=(item/playOrder.length*100)+'%';
   refresh();
 }
+function updateKeyLegends(){
+  kb.querySelectorAll('.key').forEach(el=>{
+    const k=el.dataset.key;
+    if(k===' '||k==='Shift'||k==='Backspace') return;
+    if(shiftArmed){
+      if(isLetterLower(k)) el.textContent=k.toUpperCase();
+      else el.textContent=UNSHIFTED[k]||k;
+    } else el.textContent=k;
+  });
+}
 function refresh(){
+  updateKeyLegends();
   const text=playOrder[item]; const chars=wordEl.children;
   [...chars].forEach((s,idx)=>{ s.classList.toggle('done',idx<pos); s.classList.toggle('current',idx===pos); });
   Object.values(keyEls).forEach(k=>k.classList.remove('next')); shiftEl.classList.remove('next'); backEl.classList.remove('next');
