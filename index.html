@@ -286,7 +286,7 @@ const YEAR_GROUPS=[2,3,4,5,6];
 const YEAR_PREF_KEY='classkeys-selected-year-v1';
 const PROFILE_KEY='classkeys-profile-v1';
 const customListKeyFor=y=>`classkeys-custom-yr${y}-au-v1`;
-const DATA_VERSION='16';
+const DATA_VERSION='17';
 const dataUrlFor=y=>`data/yr${y}-au.json?v=${DATA_VERSION}`;
 const storageKeyFor=y=>`classkeys-yr${y}-au-v1`;
 const LEGACY_KEYS=[
@@ -346,6 +346,7 @@ let LEVELS=[];
 /* ---------- state ---------- */
 let unlocked=0, lvl=0, item=0, pos=0, busy=false, shiftArmed=false;
 let playOrder=[]; const bestTimes={}; const levelStats={};
+let progressSchema=1;
 let hits=0, misses=0;
 const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
@@ -373,7 +374,7 @@ function applyYearLock(){
 }
 function resetPlayState(){
   unlocked=0; lvl=0; item=0; pos=0; busy=false; shiftArmed=false;
-  hits=0; misses=0; streak=0; lastPlayDate='';
+  hits=0; misses=0; streak=0; lastPlayDate=''; progressSchema=1;
   Object.keys(bestTimes).forEach(k=>delete bestTimes[k]);
   Object.keys(levelStats).forEach(k=>delete levelStats[k]);
 }
@@ -406,12 +407,9 @@ function saveCustomList(data){
 }
 function removeCustomList(){
   if(!loadCustomList()){ toast('No list to remove'); return false; }
-  const customIdx=displayLevels.findIndex(L=>L.custom);
   try{ localStorage.removeItem(customListKeyFor(currentYear)); }catch(e){}
-  if(customIdx>=0){
-    delete bestTimes[customIdx];
-    delete levelStats[customIdx];
-  }
+  delete bestTimes.custom;
+  delete levelStats.custom;
   document.getElementById('customListName').value='';
   document.getElementById('customListWords').value='';
   document.getElementById('importPaste').value='';
@@ -428,6 +426,7 @@ function parseWordsText(text){
 }
 function makeCustomLevel(custom){
   return{
+    id:'custom',
     name:String(custom.name||'Teacher word list').slice(0,80),
     color:'RM', emoji:'📝', custom:true,
     sub:`${custom.items.length} words from your teacher`,
@@ -435,22 +434,59 @@ function makeCustomLevel(custom){
     items:custom.items.slice()
   };
 }
+function isGeneratedLevel(L){
+  return !L||L.id==='custom'||L.id==='tricky-keys'||!!L.custom;
+}
+function curriculumIndex(L){
+  if(!L?.id||isGeneratedLevel(L)) return -1;
+  return LEVELS.findIndex(x=>x.id===L.id);
+}
+function isLevelLocked(L){
+  if(isGeneratedLevel(L)) return false;
+  const idx=curriculumIndex(L);
+  return idx<0||idx>unlocked;
+}
 function rebuildDisplayLevels(){
   displayLevels=LEVELS.slice();
   const custom=loadCustomList();
   if(custom) displayLevels.push(makeCustomLevel(custom));
+}
+function remapKeyedProgress(src){
+  const out={};
+  Object.keys(src||{}).forEach(k=>{
+    if(/^\d+$/.test(k)){
+      const L=displayLevels[+k];
+      if(L?.id) out[L.id]=src[k];
+    } else if(k){
+      out[k]=src[k];
+    }
+  });
+  return out;
+}
+function migrateProgressToIds(){
+  if(progressSchema>=2) return false;
+  const bt=remapKeyedProgress(bestTimes);
+  const ls=remapKeyedProgress(levelStats);
+  Object.keys(bestTimes).forEach(k=>delete bestTimes[k]);
+  Object.keys(levelStats).forEach(k=>delete levelStats[k]);
+  Object.assign(bestTimes,bt);
+  Object.assign(levelStats,ls);
+  if(LEVELS.length&&unlocked>LEVELS.length-1) unlocked=Math.max(0,LEVELS.length-1);
+  progressSchema=2;
+  return true;
 }
 function loadProgress(){
   try{
     const raw=localStorage.getItem(STORAGE_KEY);
     if(!raw) return;
     const data=JSON.parse(raw);
+    progressSchema=data.schema===2?2:1;
     if(typeof data.unlocked==='number') unlocked=data.unlocked;
     if(data.bestTimes && typeof data.bestTimes==='object'){
-      Object.keys(data.bestTimes).forEach(k=>{ bestTimes[+k]=data.bestTimes[k]; });
+      Object.keys(data.bestTimes).forEach(k=>{ bestTimes[k]=data.bestTimes[k]; });
     }
     if(data.levelStats && typeof data.levelStats==='object'){
-      Object.keys(data.levelStats).forEach(k=>{ levelStats[+k]=data.levelStats[k]; });
+      Object.keys(data.levelStats).forEach(k=>{ levelStats[k]=data.levelStats[k]; });
     }
     if(typeof data.streak==='number') streak=data.streak;
     if(data.lastPlayDate) lastPlayDate=data.lastPlayDate;
@@ -459,14 +495,14 @@ function loadProgress(){
 }
 function saveProgress(){
   try{
-    localStorage.setItem(STORAGE_KEY,JSON.stringify({ unlocked, bestTimes, levelStats, streak, lastPlayDate }));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify({ schema:progressSchema, unlocked, bestTimes, levelStats, streak, lastPlayDate }));
     document.getElementById('savedNote').hidden=false;
     updateProgressSummary();
     updateParentStats();
   }catch(e){ /* private browsing / quota */ }
 }
 function levelsCompleted(){
-  return Object.keys(bestTimes).filter(k=>+k<displayLevels.length).length;
+  return LEVELS.filter(L=>bestTimes[L.id]!==undefined).length;
 }
 function avgAccuracy(){
   const stats=Object.values(levelStats);
@@ -484,11 +520,11 @@ function avgAccuracy(){
 }
 function updateProgressSummary(){
   const el=document.getElementById('progressSummary');
-  if(!displayLevels.length){ el.innerHTML=''; return; }
+  if(!LEVELS.length){ el.innerHTML=''; return; }
   const done=levelsCompleted();
   const acc=avgAccuracy();
   el.innerHTML=
-    `<span class="progress-pill"><strong>${done}</strong> / ${displayLevels.length} levels done</span>`+
+    `<span class="progress-pill"><strong>${done}</strong> / ${LEVELS.length} levels done</span>`+
     (acc?`<span class="progress-pill">Avg accuracy <strong>${acc}</strong></span>`:'')+
     (streak>1?`<span class="progress-pill">🔥 <strong>${streak}</strong> day streak</span>`:'');
 }
@@ -497,7 +533,7 @@ function updateParentStats(){
   if(!el) return;
   const done=levelsCompleted();
   const acc=avgAccuracy()||'—';
-  const unlockedN=Math.min(unlocked+1,displayLevels.length);
+  const unlockedN=LEVELS.length?Math.min(unlocked+1,LEVELS.length):0;
   el.innerHTML=
     `<div class="parent-stat"><span class="val">${done}</span><span class="lbl">Levels done</span></div>`+
     `<div class="parent-stat"><span class="val">${acc}</span><span class="lbl">Avg accuracy</span></div>`+
@@ -587,6 +623,7 @@ async function loadLevels(){
     document.getElementById('appTitle').textContent=appTitle;
     document.getElementById('leadTitle').textContent=`Pick a level — Year ${currentYear}`;
     rebuildDisplayLevels();
+    if(migrateProgressToIds()) saveProgress();
     renderLevels();
     updateProgressSummary();
     updateParentStats();
@@ -666,18 +703,19 @@ function buildProgressReport(){
     'Exported '+new Date().toLocaleString('en-AU'),
     name?'Student: '+name:'',
     '',
-    'Levels unlocked: '+(unlocked+1)+' of '+displayLevels.length,
+    'Levels unlocked: '+(LEVELS.length?Math.min(unlocked+1,LEVELS.length):0)+' of '+LEVELS.length,
     streak>1?'Practice streak: '+streak+' days':'',
     ''
   ];
   displayLevels.forEach((L,i)=>{
-    let line=(i+1)+'. '+L.name+' — ';
+    const id=L.id;
+    let line=(isGeneratedLevel(L)?'•':(curriculumIndex(L)+1)+'.')+' '+L.name+' — ';
     if(L.curriculum?.codes?.length) line+='['+L.curriculum.codes.join(', ')+'] ';
     if(L.custom) line+='(teacher list) ';
-    if(!L.custom && i>unlocked) line+='Locked';
-    else if(bestTimes[i]!==undefined){
-      line+='Best time: '+fmt(bestTimes[i]);
-      if(levelStats[i]) line+=', last accuracy: '+levelStats[i].accuracy+(levelStats[i].wpm?', '+levelStats[i].wpm+' WPM':'');
+    if(isLevelLocked(L)) line+='Locked';
+    else if(bestTimes[id]!==undefined){
+      line+='Best time: '+fmt(bestTimes[id]);
+      if(levelStats[id]) line+=', last accuracy: '+levelStats[id].accuracy+(levelStats[id].wpm?', '+levelStats[id].wpm+' WPM':'');
     } else line+='Unlocked, not yet completed';
     lines.push(line);
   });
@@ -843,15 +881,17 @@ const grid=document.getElementById('levelGrid');
 function renderLevels(){
   grid.innerHTML='';
   displayLevels.forEach((L,i)=>{
-    const locked=!L.custom && i>unlocked;
+    const locked=isLevelLocked(L);
     const card=document.createElement('div');
     card.className='lvl-card'+(locked?' locked':'')+(L.custom?' custom':'');
     card.style.setProperty('--c',levelColor(L));
-    const completed=bestTimes[i]!==undefined;
-    card.innerHTML=`<div class="num">${L.custom?'📝':i+1}</div><h3>${esc(L.name)}</h3><p>${esc(L.sub)}</p>`+
+    const id=L.id;
+    const completed=bestTimes[id]!==undefined;
+    const numLabel=isGeneratedLevel(L)?(L.custom?'📝':'🔑'):(curriculumIndex(L)+1);
+    card.innerHTML=`<div class="num">${numLabel}</div><h3>${esc(L.name)}</h3><p>${esc(L.sub)}</p>`+
       curriculumTag(L)+
-      (completed?`<div class="best">⭐ Best ${fmt(bestTimes[i])}${levelStats[i]?.accuracy?' · 🎯 '+esc(levelStats[i].accuracy):''}</div>`+
-        `<div class="done-badge">${L.custom?'Practice again':'✓ Completed — tap to practice'}</div>`:'')+
+      (completed?`<div class="best">⭐ Best ${fmt(bestTimes[id])}${levelStats[id]?.accuracy?' · 🎯 '+esc(levelStats[id].accuracy):''}</div>`+
+        `<div class="done-badge">${isGeneratedLevel(L)?'Practice again':'✓ Completed — tap to practice'}</div>`:'')+
       (locked?'<span class="lock">🔒</span>':'');
     if(!locked) card.addEventListener('click',()=>startLevel(i));
     grid.appendChild(card);
@@ -972,19 +1012,24 @@ function finishLevel(){
   const elapsed=stopTimer(); barFill.style.width='100%';
   const accuracy=fmtAccuracy(hits,misses);
   const wpm=calcWpm(hits,elapsed);
+  const L=displayLevels[lvl];
+  const id=L.id;
   let isBest=false;
-  if(bestTimes[lvl]===undefined || elapsed<bestTimes[lvl]){ bestTimes[lvl]=elapsed; isBest=true; }
-  levelStats[lvl]={ time:elapsed, accuracy, wpm, hits, misses, at:Date.now() };
-  if(lvl<LEVELS.length-1 && lvl+1>unlocked) unlocked=lvl+1;
+  if(bestTimes[id]===undefined || elapsed<bestTimes[id]){ bestTimes[id]=elapsed; isBest=true; }
+  levelStats[id]={ time:elapsed, accuracy, wpm, hits, misses, at:Date.now() };
+  if(!isGeneratedLevel(L)){
+    const idx=curriculumIndex(L);
+    if(idx>=0 && idx<LEVELS.length-1 && idx+1>unlocked) unlocked=idx+1;
+  }
   bumpStreak();
   saveProgress();
   celebrate();
-  ovEmoji.textContent=displayLevels[lvl].emoji;
-  ovTitle.textContent=`${displayLevels[lvl].name} done!`;
+  ovEmoji.textContent=L.emoji;
+  ovTitle.textContent=`${L.name} done!`;
   ovTime.textContent=`Your time: ${fmt(elapsed)}`;
   ovWpm.textContent=`Speed: ${wpm} WPM`;
   ovAccuracy.textContent=`🎯 Accuracy: ${accuracy}`;
-  ovBestWrap.innerHTML=isBest?'<div class="newbest">⭐ New best time!</div>':`<div class="stat">Best: ${fmt(bestTimes[lvl])}</div>`;
+  ovBestWrap.innerHTML=isBest?'<div class="newbest">⭐ New best time!</div>':`<div class="stat">Best: ${fmt(bestTimes[id])}</div>`;
   const last=lvl>=displayLevels.length-1;
   if(last){ ovNext.textContent='Play again'; ovNext.onclick=()=>{overlay.classList.remove('on'); startLevel(lvl);}; }
   else { ovNext.textContent=`Start ${displayLevels[lvl+1].name}`; ovNext.onclick=()=>{overlay.classList.remove('on'); startLevel(lvl+1);}; }

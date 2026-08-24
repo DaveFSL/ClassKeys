@@ -6,6 +6,7 @@
   "curriculumSubject": "English, Mathematics, Science, HASS, Technologies, HPE",
   "levels": [
     {
+      "id": "yr4-home-row",
       "name": "Home Row",
       "color": "LM",
       "emoji": "🏠",
@@ -17,6 +18,7 @@
       "items": ["f", "j", "d", "k", "a", "s", "l", "g", "h", "as", "add", "dad", "sad", "ask", "all", "lad", "fall", "glass", "flask", "salad", "flash"]
     },
     {
+      "id": "yr4-english-words",
       "name": "English Words",
       "color": "LI",
       "emoji": "📖",
@@ -28,6 +30,7 @@
       "items": ["important", "different", "beautiful", "together", "remember", "question", "sentence", "paragraph", "library", "February", "surprise", "favourite", "knowledge", "language", "describe", "audience", "purpose", "inform", "persuade", "entertain"]
     },
     {
+      "id": "yr4-maths-words",
       "name": "Maths Words",
       "color": "RM",
       "emoji": "🔢",
@@ -39,6 +42,7 @@
       "items": ["fraction", "decimal", "numerator", "denominator", "multiply", "division", "remainder", "estimate", "pattern", "perimeter", "symmetry", "angle", "triangle", "rectangle", "kilometre", "millimetre", "litre", "kilogram", "calendar", "duration"]
     },
     {
+      "id": "yr4-science-words",
       "name": "Science Words",
       "color": "RI",
       "emoji": "🔬",
@@ -50,6 +54,7 @@
       "items": ["habitat", "lifecycle", "living", "nonliving", "adaptation", "environment", "weathering", "erosion", "deposit", "surface", "observe", "predict", "investigate", "evidence", "classification", "vertebrate", "invertebrate", "producer", "consumer", "foodchain"]
     },
     {
+      "id": "yr4-hass-words",
       "name": "HASS Words",
       "color": "LR",
       "emoji": "🌏",
@@ -61,6 +66,7 @@
       "items": ["community", "culture", "tradition", "timeline", "artefact", "source", "settlement", "continent", "hemisphere", "climate", "vegetation", "environment", "sustainability", "citizen", "government", "rules", "laws", "democracy", "respect", "country"]
     },
     {
+      "id": "yr4-prefixes-suffixes",
       "name": "Prefixes & Suffixes",
       "color": "RR",
       "emoji": "🔧",
@@ -72,6 +78,7 @@
       "items": ["preview", "rewrite", "submarine", "transport", "disappear", "unhappy", "helpful", "quickly", "teacher", "movement", "darkness", "payment", "readable", "flexible", "national", "historical", "environmental", "renewable", "governmental", "cultural"]
     },
     {
+      "id": "yr4-tricky-words",
       "name": "Tricky Words",
       "color": "RP",
       "emoji": "🎯",
@@ -83,6 +90,7 @@
       "items": ["there", "their", "they're", "where", "wear", "weather", "whether", "peace", "piece", "break", "brake", "whole", "hole", "through", "threw", "accept", "except", "quite", "quiet", "principal"]
     },
     {
+      "id": "yr4-capitals-places",
       "name": "Capitals & Places",
       "color": "LP",
       "emoji": "🔠",
@@ -94,6 +102,7 @@
       "items": ["Australia", "Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide", "Tasmania", "Pacific", "Indian", "Antarctica", "Monday", "Tuesday", "January", "February", "Anangu", "Yolngu", "Kaurna", "Wurundjeri", "Europe", "Asia"]
     },
     {
+      "id": "yr4-technologies-hpe",
       "name": "Technologies & HPE",
       "color": "LI",
       "emoji": "💻",
@@ -105,6 +114,7 @@
       "items": ["design", "solution", "system", "digital", "network", "algorithm", "sequence", "input", "output", "nutrition", "hydration", "fitness", "exercise", "wellbeing", "teamwork", "respect", "balance", "stretch", "strength", "safety"]
     },
     {
+      "id": "yr4-full-sentences",
       "name": "Full Sentences",
       "color": "RI",
       "emoji": "🏆",

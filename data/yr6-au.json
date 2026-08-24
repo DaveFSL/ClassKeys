@@ -6,6 +6,7 @@
   "curriculumSubject": "English, Mathematics, Science, HASS, Technologies, HPE",
   "levels": [
     {
+      "id": "yr6-home-row",
       "name": "Home Row",
       "color": "LM",
       "emoji": "🏠",
@@ -17,6 +18,7 @@
       "items": ["f", "j", "d", "k", "a", "s", "l", "g", "h", "as", "add", "dad", "sad", "ask", "all", "lad", "fall", "glass", "flask", "salad", "flash"]
     },
     {
+      "id": "yr6-english-words",
       "name": "English Words",
       "color": "LI",
       "emoji": "📖",
@@ -28,6 +30,7 @@
       "items": ["analyse", "interpret", "evaluate", "compare", "contrast", "summarise", "synthesise", "perspective", "viewpoint", "theme", "character", "setting", "plot", "symbolism", "imagery", "alliteration", "personification", "hyperbole", "structure", "technique"]
     },
     {
+      "id": "yr6-maths-words",
       "name": "Maths Words",
       "color": "RM",
       "emoji": "🔢",
@@ -39,6 +42,7 @@
       "items": ["integer", "negative", "positive", "numberline", "variable", "expression", "equation", "pattern", "rule", "order", "operation", "brackets", "fraction", "decimal", "percentage", "ratio", "probability", "outcome", "frequency", "dataset"]
     },
     {
+      "id": "yr6-science-words",
       "name": "Science Words",
       "color": "RI",
       "emoji": "🔬",
@@ -50,6 +54,7 @@
       "items": ["cell", "organism", "microorganism", "bacteria", "classification", "kingdom", "species", "vertebrate", "invertebrate", "energy", "transfer", "transform", "circuit", "conductor", "insulator", "force", "motion", "gravity", "friction", "electrical"]
     },
     {
+      "id": "yr6-hass-words",
       "name": "HASS Words",
       "color": "LR",
       "emoji": "🌏",
@@ -61,6 +66,7 @@
       "items": ["federation", "constitution", "referendum", "democracy", "republic", "monarchy", "parliament", "legislation", "globalisation", "connection", "interdependence", "trade", "migration", "culture", "heritage", "sustainability", "conservation", "treaty", "reconciliation", "citizenship"]
     },
     {
+      "id": "yr6-roots-affixes",
       "name": "Roots & Affixes",
       "color": "RR",
       "emoji": "🌱",
@@ -72,6 +78,7 @@
       "items": ["biology", "geology", "astronomy", "microscope", "telescope", "photograph", "transport", "translate", "predict", "inspect", "visible", "audible", "flexible", "sensible", "annual", "manual", "automatic", "bilingual", "multicultural", "international"]
     },
     {
+      "id": "yr6-tricky-words",
       "name": "Tricky Words",
       "color": "RP",
       "emoji": "🎯",
@@ -83,6 +90,7 @@
       "items": ["accommodate", "occurrence", "maintenance", "conscience", "conscious", "parliament", "government", "environment", "temperature", "guarantee", "recommend", "immediately", "definitely", "separate", "necessary", "rhythm", "physical", "psychology", "technique", "analysis"]
     },
     {
+      "id": "yr6-capitals-places",
       "name": "Capitals & Places",
       "color": "LP",
       "emoji": "🔠",
@@ -94,6 +102,7 @@
       "items": ["Australia", "Canberra", "Sydney", "Melbourne", "Indonesia", "Japan", "China", "India", "New Zealand", "Pacific", "Asia", "Europe", "Antarctica", "Federation", "Anzac", "Uluru", "Kakadu", "Murray", "Darling", "Thursday"]
     },
     {
+      "id": "yr6-technologies-hpe",
       "name": "Technologies & HPE",
       "color": "LI",
       "emoji": "💻",
@@ -105,6 +114,7 @@
       "items": ["algorithm", "program", "debug", "interface", "cyberbullying", "privacy", "copyright", "plagiarism", "respect", "consent", "nutrition", "wellbeing", "resilience", "mindfulness", "aerobic", "anaerobic", "hydration", "recovery", "inclusion", "fairness"]
     },
     {
+      "id": "yr6-full-sentences",
       "name": "Full Sentences",
       "color": "RI",
       "emoji": "🏆",

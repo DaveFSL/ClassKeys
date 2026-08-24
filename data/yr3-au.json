@@ -6,6 +6,7 @@
   "curriculumSubject": "English, Mathematics, Science, HASS, Technologies, HPE",
   "levels": [
     {
+      "id": "yr3-home-row",
       "name": "Home Row",
       "color": "LM",
       "emoji": "🏠",
@@ -17,6 +18,7 @@
       "items": ["f", "j", "d", "k", "a", "s", "l", "g", "h", "as", "add", "dad", "sad", "ask", "all", "lad", "fall", "glass", "flask", "salad", "flash"]
     },
     {
+      "id": "yr3-english-words",
       "name": "English Words",
       "color": "LI",
       "emoji": "📖",
@@ -28,6 +30,7 @@
       "items": ["jump", "play", "friend", "because", "happy", "water", "smile", "rainbow", "birthday", "favourite", "beautiful", "important", "different", "everybody", "wonderful", "vegetable", "adventure", "playground", "butterfly", "remember"]
     },
     {
+      "id": "yr3-maths-words",
       "name": "Maths Words",
       "color": "RM",
       "emoji": "🔢",
@@ -39,6 +42,7 @@
       "items": ["add", "plus", "minus", "equal", "share", "group", "count", "number", "pattern", "double", "half", "quarter", "shape", "circle", "square", "triangle", "length", "metre", "clock", "graph"]
     },
     {
+      "id": "yr3-science-words",
       "name": "Science Words",
       "color": "RI",
       "emoji": "🔬",
@@ -50,6 +54,7 @@
       "items": ["living", "nonliving", "plant", "animal", "grow", "change", "heat", "cool", "melt", "solid", "liquid", "observe", "push", "pull", "force", "light", "shadow", "water", "soil", "habitat"]
     },
     {
+      "id": "yr3-hass-words",
       "name": "HASS Words",
       "color": "LR",
       "emoji": "🌏",
@@ -61,6 +66,7 @@
       "items": ["community", "family", "local", "place", "map", "rule", "fair", "respect", "culture", "Country", "celebrate", "special", "past", "present", "change", "weather", "season", "neighbour", "helper", "belong"]
     },
     {
+      "id": "yr3-word-parts",
       "name": "Word Parts",
       "color": "RR",
       "emoji": "🔧",
@@ -72,6 +78,7 @@
       "items": ["playing", "jumped", "helpful", "quickly", "teacher", "running", "planted", "unhappy", "restart", "preview", "darkness", "movement", "kindness", "slowly", "careful", "hopeful", "walking", "looked", "talking", "opened"]
     },
     {
+      "id": "yr3-tricky-words",
       "name": "Tricky Words",
       "color": "RP",
       "emoji": "🎯",
@@ -83,6 +90,7 @@
       "items": ["already", "they", "forgetting", "beginning", "February", "yesterday", "believe", "people", "favourite", "chocolate", "almost", "after", "surprise", "tomorrow", "different", "ever", "never", "every", "one", "only", "once"]
     },
     {
+      "id": "yr3-capitals-places",
       "name": "Capitals & Places",
       "color": "LP",
       "emoji": "🔠",
@@ -94,6 +102,7 @@
       "items": ["Sam", "Emma", "Jack", "Lily", "Monday", "Friday", "March", "April", "Brisbane", "Australia", "Sydney", "Melbourne", "Perth", "Tasmania", "Pacific", "Anangu", "Kaurna", "Wurundjeri", "Europe", "Asia"]
     },
     {
+      "id": "yr3-technologies-hpe",
       "name": "Technologies & HPE",
       "color": "LI",
       "emoji": "💻",
@@ -105,6 +114,7 @@
       "items": ["design", "make", "build", "plan", "safe", "online", "help", "body", "healthy", "food", "water", "exercise", "team", "friend", "play", "balance", "stretch", "strength", "kind", "care"]
     },
     {
+      "id": "yr3-full-sentences",
       "name": "Full Sentences",
       "color": "RI",
       "emoji": "🏆",
