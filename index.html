@@ -68,13 +68,19 @@
   .progress-pill{font-family:'Fredoka',sans-serif; font-weight:600; font-size:13px; color:var(--ink-soft);
     background:var(--panel); border:1.5px solid var(--line); border-radius:999px; padding:6px 14px;}
   .progress-pill strong{color:var(--ink);}
-  .mode-control{display:flex; justify-content:center; gap:6px; flex-wrap:wrap; margin:0 0 14px; width:100%;}
+  .mode-control{display:flex; justify-content:center; gap:6px; flex-wrap:wrap; margin:0 0 8px; width:100%;}
   .mode-seg{font-family:'Fredoka',sans-serif; font-weight:600; font-size:13px; color:var(--ink-soft);
     background:var(--panel); border:1.5px solid var(--line); border-radius:999px; padding:8px 12px; cursor:pointer;
     flex:1 1 auto; min-width:0; max-width:160px; text-align:center; line-height:1.25;}
   .mode-seg:hover:not(.locked):not(.on){color:var(--ink);}
   .mode-seg.on{color:#fff; background:var(--RM); border-color:var(--RM);}
-  .mode-seg.locked{opacity:.42; cursor:not-allowed; background:#eef2f6;}
+  .mode-seg.locked{opacity:.55; cursor:pointer; background:#eef2f6;}
+  .mode-lock-hint{margin:0 0 6px; font-size:13px; color:var(--ink-soft); font-weight:600; line-height:1.45; text-align:center;
+    font-family:'Fredoka',sans-serif;}
+  .mode-lock-hint .mode-req{display:inline-block; margin:4px 0 0 6px; vertical-align:middle; font-size:11px; font-weight:700;
+    color:var(--RM); background:#eef5fc; border-radius:999px; padding:2px 9px; white-space:nowrap;}
+  .mode-next-hint{margin:0 0 14px; font-size:12px; color:var(--ink-soft); font-weight:600; line-height:1.45; text-align:center;
+    font-family:'Fredoka',sans-serif;}
   .panel-check{display:flex; align-items:flex-start; gap:10px; margin:12px 0 4px; font-size:14px; font-weight:600; color:var(--ink); text-align:left; cursor:pointer;}
   .panel-check input{width:18px; height:18px; margin-top:2px; flex:0 0 auto; accent-color:var(--RM);}
   .parent-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:10px;}
@@ -220,6 +226,8 @@
       <button type="button" class="mode-seg" data-mode="keys">No glow</button>
       <button type="button" class="mode-seg" data-mode="hidden">Keyboard hidden</button>
     </div>
+    <p class="mode-lock-hint" id="modeLockHint" hidden></p>
+    <p class="mode-next-hint" id="modeNextHint" hidden></p>
     <div class="info-panels">
       <button type="button" class="panel-toggle" id="teacherToggle">For teachers ▾</button>
       <button type="button" class="panel-toggle" id="parentToggle">For parents ▾</button>
@@ -370,6 +378,8 @@ let progressSchema=1;
 let hits=0, misses=0;
 const MODE_ORDER=['glow','keys','hidden'];
 const MODE_LABELS={glow:'Glowing keys',keys:'No glow',hidden:'Keyboard hidden'};
+const UNLOCK_KEYS={acc:92,wpm:10};
+const UNLOCK_HIDDEN={acc:92,wpm:15};
 let hintMode='glow';
 let unlockedModes=['glow'];
 let unlockAllModes=false;
@@ -390,15 +400,47 @@ function effectiveHintMode(){
 function normalizeHintMode(){
   if(!MODE_ORDER.includes(hintMode)||!isModeUnlocked(hintMode)) hintMode='glow';
 }
-function maybeUnlockNextMode(accPct){
-  if(accPct<92) return;
-  const idx=MODE_ORDER.indexOf(hintMode);
-  if(idx<0||idx>=MODE_ORDER.length-1) return;
-  const next=MODE_ORDER[idx+1];
-  if(!unlockedModes.includes(next)){
-    unlockedModes=[...unlockedModes,next];
-    toast(MODE_LABELS[next]+' unlocked');
+function unlockMode(m){
+  if(!MODE_ORDER.includes(m)||unlockedModes.includes(m)) return false;
+  unlockedModes=[...unlockedModes,m];
+  toast('🎉 You did it! '+MODE_LABELS[m]+' unlocked.');
+  return true;
+}
+function maybeUnlockNextMode(accPct,wpm){
+  if(hintMode==='glow'&&accPct>=UNLOCK_KEYS.acc&&wpm>=UNLOCK_KEYS.wpm) unlockMode('keys');
+  else if(hintMode==='keys'&&accPct>=UNLOCK_HIDDEN.acc&&wpm>=UNLOCK_HIDDEN.wpm) unlockMode('hidden');
+}
+function clearModeLockHint(){
+  const el=document.getElementById('modeLockHint');
+  if(!el) return;
+  el.hidden=true;
+  el.innerHTML='';
+}
+function showModeLockHint(m){
+  const el=document.getElementById('modeLockHint');
+  if(!el) return;
+  if(m==='keys'){
+    el.hidden=false;
+    el.innerHTML='Keep going! Finish a level carefully and a bit faster to turn off the glow. <span class="mode-req">'+UNLOCK_KEYS.acc+'% · '+UNLOCK_KEYS.wpm+' WPM</span>';
+  } else if(m==='hidden'){
+    el.hidden=false;
+    el.innerHTML='Almost there! Finish a level carefully and faster to hide the keyboard. <span class="mode-req">'+UNLOCK_HIDDEN.acc+'% · '+UNLOCK_HIDDEN.wpm+' WPM</span>';
+  } else {
+    clearModeLockHint();
   }
+}
+function updateModeNextHint(){
+  const el=document.getElementById('modeNextHint');
+  if(!el) return;
+  if(unlockAllModes||(isModeUnlocked('keys')&&isModeUnlocked('hidden'))){
+    el.hidden=true;
+    el.textContent='';
+    return;
+  }
+  el.hidden=false;
+  el.textContent=!isModeUnlocked('keys')
+    ?'Next: type carefully and a bit faster to unlock No glow'
+    :'Next: type carefully and faster to unlock Keyboard hidden';
 }
 
 function getYearLockFromUrl(){
@@ -649,15 +691,20 @@ function renderModeControl(){
   wrap.querySelectorAll('.mode-seg').forEach(btn=>{
     const m=btn.dataset.mode;
     const open=isModeUnlocked(m);
+    const label=MODE_LABELS[m];
+    btn.textContent=open?label:('🔒 '+label);
     btn.classList.toggle('on',m===hintMode);
     btn.classList.toggle('locked',!open);
     btn.setAttribute('aria-pressed',m===hintMode?'true':'false');
-    btn.disabled=!open;
+    btn.setAttribute('aria-disabled',open?'false':'true');
+    btn.disabled=false;
   });
+  updateModeNextHint();
 }
 function setHintMode(m){
   if(!MODE_ORDER.includes(m)||!isModeUnlocked(m)) return;
   hintMode=m;
+  clearModeLockHint();
   saveProgress();
   if(playScreen.classList.contains('on')) refresh();
 }
@@ -906,8 +953,10 @@ document.getElementById('unlockAllModes').addEventListener('change',()=>{
 });
 document.getElementById('modeControl').addEventListener('click',e=>{
   const btn=e.target.closest('.mode-seg');
-  if(!btn||btn.disabled) return;
-  setHintMode(btn.dataset.mode);
+  if(!btn) return;
+  const m=btn.dataset.mode;
+  if(!isModeUnlocked(m)){ showModeLockHint(m); return; }
+  setHintMode(m);
 });
 document.getElementById('copyProgress').onclick=()=>{
   if(!displayLevels.length){ toast('Levels still loading'); return; }
@@ -1062,6 +1111,7 @@ function startTimer(){startT=Date.now(); timerEl.textContent='0:00'; clearInterv
 function stopTimer(){clearInterval(timerId); timerId=null; return Date.now()-startT;}
 
 function startLevel(i){
+  clearModeLockHint();
   lvl=i; item=0; pos=0; hits=0; misses=0; updateAccuracyDisplay();
   shiftArmed=false; shiftEl.classList.remove('armed');
   playOrder=shuffle(displayLevels[i].items.slice());
@@ -1170,7 +1220,7 @@ function finishLevel(){
     if(idx>=0 && idx<LEVELS.length-1 && idx+1>unlocked) unlocked=idx+1;
   }
   const accPct=(hits+misses)?Math.round(hits/(hits+misses)*100):100;
-  maybeUnlockNextMode(accPct);
+  maybeUnlockNextMode(accPct,wpm);
   bumpStreak();
   saveProgress();
   celebrate();
