@@ -68,6 +68,15 @@
   .progress-pill{font-family:'Fredoka',sans-serif; font-weight:600; font-size:13px; color:var(--ink-soft);
     background:var(--panel); border:1.5px solid var(--line); border-radius:999px; padding:6px 14px;}
   .progress-pill strong{color:var(--ink);}
+  .mode-control{display:flex; justify-content:center; gap:6px; flex-wrap:wrap; margin:0 0 14px; width:100%;}
+  .mode-seg{font-family:'Fredoka',sans-serif; font-weight:600; font-size:13px; color:var(--ink-soft);
+    background:var(--panel); border:1.5px solid var(--line); border-radius:999px; padding:8px 12px; cursor:pointer;
+    flex:1 1 auto; min-width:0; max-width:160px; text-align:center; line-height:1.25;}
+  .mode-seg:hover:not(.locked):not(.on){color:var(--ink);}
+  .mode-seg.on{color:#fff; background:var(--RM); border-color:var(--RM);}
+  .mode-seg.locked{opacity:.42; cursor:not-allowed; background:#eef2f6;}
+  .panel-check{display:flex; align-items:flex-start; gap:10px; margin:12px 0 4px; font-size:14px; font-weight:600; color:var(--ink); text-align:left; cursor:pointer;}
+  .panel-check input{width:18px; height:18px; margin-top:2px; flex:0 0 auto; accent-color:var(--RM);}
   .parent-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:10px;}
   .parent-stat{background:#f1f6fb; border-radius:12px; padding:10px 8px; text-align:center;}
   .parent-stat .val{font-family:'Fredoka',sans-serif; font-weight:700; font-size:20px; color:var(--RM); display:block;}
@@ -136,6 +145,9 @@
   .finger-hint .swatch{width:16px;height:16px;border-radius:50%;background:var(--cur,#ccc);}
 
   .keyboard{width:100%; max-width:720px; margin:0 auto; display:flex; flex-direction:column; gap:8px; padding-bottom:8px;}
+  @media (hover:hover) and (pointer:fine){
+    .keyboard.kb-hidden{visibility:hidden; height:0; overflow:hidden; padding:0; margin:0; opacity:0; pointer-events:none;}
+  }
   .krow{display:flex; justify-content:center; gap:8px;}
   .krow.r2{padding:0;} .krow.r3{padding:0 28px;}
   .key{flex:1 1 0; min-width:0; aspect-ratio:1/1.08; max-width:60px; background:var(--panel);
@@ -203,6 +215,11 @@
     </div>
     <p class="saved-note" id="savedNote" hidden>Progress is saved on this device.</p>
     <div class="progress-summary" id="progressSummary"></div>
+    <div class="mode-control" id="modeControl" role="group" aria-label="Keyboard practice mode">
+      <button type="button" class="mode-seg" data-mode="glow">Glowing keys</button>
+      <button type="button" class="mode-seg" data-mode="keys">No glow</button>
+      <button type="button" class="mode-seg" data-mode="hidden">Keyboard hidden</button>
+    </div>
     <div class="info-panels">
       <button type="button" class="panel-toggle" id="teacherToggle">For teachers ▾</button>
       <button type="button" class="panel-toggle" id="parentToggle">For parents ▾</button>
@@ -214,6 +231,8 @@
           <button type="button" class="btn-ghost show" id="copyProgress">Copy progress</button>
           <button type="button" class="btn-ghost show" id="downloadProgress">Download report</button>
         </div>
+        <label class="panel-check"><input type="checkbox" id="unlockAllModes"><span>Unlock all keyboard modes</span></label>
+        <p class="panel-hint">For students who already type well — unlocks Glowing keys, No glow and Keyboard hidden.</p>
         <div class="panel-divider"></div>
         <p class="panel-section-title">Create a word list for your class</p>
         <label class="panel-label" for="customListName">List name</label>
@@ -349,9 +368,38 @@ let unlocked=0, lvl=0, item=0, pos=0, busy=false, shiftArmed=false;
 let playOrder=[]; const bestTimes={}; const levelStats={};
 let progressSchema=1;
 let hits=0, misses=0;
+const MODE_ORDER=['glow','keys','hidden'];
+const MODE_LABELS={glow:'Glowing keys',keys:'No glow',hidden:'Keyboard hidden'};
+let hintMode='glow';
+let unlockedModes=['glow'];
+let unlockAllModes=false;
 const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
 const isLetterLower=c=>/^[a-z]$/.test(c);
+function supportsHiddenKeyboard(){
+  return matchMedia('(hover: hover) and (pointer: fine)').matches;
+}
+function isModeUnlocked(m){
+  return unlockAllModes||unlockedModes.includes(m);
+}
+function effectiveHintMode(){
+  const m=isModeUnlocked(hintMode)?hintMode:'glow';
+  if(m==='hidden'&&!supportsHiddenKeyboard()) return 'keys';
+  return m;
+}
+function normalizeHintMode(){
+  if(!MODE_ORDER.includes(hintMode)||!isModeUnlocked(hintMode)) hintMode='glow';
+}
+function maybeUnlockNextMode(accPct){
+  if(accPct<92) return;
+  const idx=MODE_ORDER.indexOf(hintMode);
+  if(idx<0||idx>=MODE_ORDER.length-1) return;
+  const next=MODE_ORDER[idx+1];
+  if(!unlockedModes.includes(next)){
+    unlockedModes=[...unlockedModes,next];
+    toast(MODE_LABELS[next]+' unlocked');
+  }
+}
 
 function getYearLockFromUrl(){
   let y=+new URLSearchParams(location.search).get('year');
@@ -376,6 +424,7 @@ function applyYearLock(){
 function resetPlayState(){
   unlocked=0; lvl=0; item=0; pos=0; busy=false; shiftArmed=false;
   hits=0; misses=0; progressSchema=1;
+  hintMode='glow'; unlockedModes=['glow'];
   Object.keys(bestTimes).forEach(k=>delete bestTimes[k]);
   Object.keys(levelStats).forEach(k=>delete levelStats[k]);
 }
@@ -383,12 +432,17 @@ function loadProfile(){
   try{
     const d=JSON.parse(localStorage.getItem(PROFILE_KEY)||'{}');
     if(d.studentName) document.getElementById('studentName').value=d.studentName;
+    unlockAllModes=!!d.unlockAllModes;
+    const cb=document.getElementById('unlockAllModes');
+    if(cb) cb.checked=unlockAllModes;
   }catch(e){}
 }
 function saveProfile(){
   try{
     const d=JSON.parse(localStorage.getItem(PROFILE_KEY)||'{}');
     d.studentName=document.getElementById('studentName').value.trim();
+    d.unlockAllModes=!!document.getElementById('unlockAllModes')?.checked;
+    unlockAllModes=d.unlockAllModes;
     localStorage.setItem(PROFILE_KEY,JSON.stringify(d));
   }catch(e){}
 }
@@ -538,16 +592,23 @@ function loadProgress(){
     if(data.levelStats && typeof data.levelStats==='object'){
       Object.keys(data.levelStats).forEach(k=>{ levelStats[k]=data.levelStats[k]; });
     }
+    if(Array.isArray(data.unlockedModes)){
+      unlockedModes=data.unlockedModes.filter(m=>MODE_ORDER.includes(m));
+    } else unlockedModes=['glow'];
+    if(!unlockedModes.includes('glow')) unlockedModes=['glow',...unlockedModes];
+    hintMode=MODE_ORDER.includes(data.hintMode)?data.hintMode:'glow';
+    normalizeHintMode();
     document.getElementById('savedNote').hidden=false;
   }catch(e){ /* ignore corrupt storage */ }
 }
 function saveProgress(){
   try{
-    localStorage.setItem(STORAGE_KEY,JSON.stringify({ schema:progressSchema, unlocked, bestTimes, levelStats }));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify({ schema:progressSchema, unlocked, bestTimes, levelStats, hintMode, unlockedModes }));
     saveStreak();
     document.getElementById('savedNote').hidden=false;
     updateProgressSummary();
     updateParentStats();
+    renderModeControl();
   }catch(e){ /* private browsing / quota */ }
 }
 function levelsCompleted(){
@@ -569,7 +630,7 @@ function avgAccuracy(){
 }
 function updateProgressSummary(){
   const el=document.getElementById('progressSummary');
-  if(!LEVELS.length){ el.innerHTML=''; return; }
+  if(!LEVELS.length){ el.innerHTML=''; renderModeControl(); return; }
   const done=levelsCompleted();
   const acc=avgAccuracy();
   const streakLabel=streak===1
@@ -579,6 +640,26 @@ function updateProgressSummary(){
     `<span class="progress-pill"><strong>${done}</strong> / ${LEVELS.length} levels done</span>`+
     (acc?`<span class="progress-pill">Avg accuracy <strong>${acc}</strong></span>`:'')+
     (streak>=1?`<span class="progress-pill">${streakLabel}</span>`:'');
+  renderModeControl();
+}
+function renderModeControl(){
+  const wrap=document.getElementById('modeControl');
+  if(!wrap) return;
+  normalizeHintMode();
+  wrap.querySelectorAll('.mode-seg').forEach(btn=>{
+    const m=btn.dataset.mode;
+    const open=isModeUnlocked(m);
+    btn.classList.toggle('on',m===hintMode);
+    btn.classList.toggle('locked',!open);
+    btn.setAttribute('aria-pressed',m===hintMode?'true':'false');
+    btn.disabled=!open;
+  });
+}
+function setHintMode(m){
+  if(!MODE_ORDER.includes(m)||!isModeUnlocked(m)) return;
+  hintMode=m;
+  saveProgress();
+  if(playScreen.classList.contains('on')) refresh();
 }
 function updateParentStats(){
   const el=document.getElementById('parentStats');
@@ -757,6 +838,8 @@ function buildProgressReport(){
     '',
     'Levels unlocked: '+(LEVELS.length?Math.min(unlocked+1,LEVELS.length):0)+' of '+LEVELS.length,
     streak>=1?'Practice streak: '+streak+(streak===1?' day':' days'):'',
+    'Keyboard mode: '+MODE_LABELS[hintMode]+(unlockAllModes?' (teacher unlock all)':''),
+    'Modes unlocked: '+MODE_ORDER.filter(isModeUnlocked).map(m=>MODE_LABELS[m]).join(', '),
     ''
   ];
   displayLevels.forEach((L,i)=>{
@@ -815,6 +898,17 @@ document.getElementById('importToggle').onclick=()=>{
   togglePanel('importBody','importToggle','Import word list ▴','Import word list ▾');
 };
 document.getElementById('studentName').addEventListener('input',saveProfile);
+document.getElementById('unlockAllModes').addEventListener('change',()=>{
+  saveProfile();
+  normalizeHintMode();
+  renderModeControl();
+  if(playScreen.classList.contains('on')) refresh();
+});
+document.getElementById('modeControl').addEventListener('click',e=>{
+  const btn=e.target.closest('.mode-seg');
+  if(!btn||btn.disabled) return;
+  setHintMode(btn.dataset.mode);
+});
 document.getElementById('copyProgress').onclick=()=>{
   if(!displayLevels.length){ toast('Levels still loading'); return; }
   copyText(buildProgressReport());
@@ -999,6 +1093,8 @@ function updateKeyLegends(){
 }
 function refresh(){
   updateKeyLegends();
+  const mode=effectiveHintMode();
+  kb.classList.toggle('kb-hidden',mode==='hidden');
   const text=playOrder[item]; const chars=wordEl.children;
   [...chars].forEach((s,idx)=>{ s.classList.toggle('done',idx<pos); s.classList.toggle('current',idx===pos); });
   Object.values(keyEls).forEach(k=>k.classList.remove('next')); shiftEl.classList.remove('next'); backEl.classList.remove('next');
@@ -1007,7 +1103,7 @@ function refresh(){
   let fingerCode, nextEl;
   if(shiftNeeded && !shiftArmed){ nextEl=shiftEl; fingerCode='LP'; }
   else { const lk=target===' '?' ':baseKey(target); nextEl=keyEls[lk]; fingerCode=KEYFINGER[lk]||'TH'; }
-  if(nextEl) nextEl.classList.add('next');
+  if(mode==='glow'&&nextEl) nextEl.classList.add('next');
   const fc=cssColor(fingerCode);
   const curChar=chars[pos]; if(curChar) curChar.style.setProperty('--cur',fc);
   swatch.style.background=fc;
@@ -1073,6 +1169,8 @@ function finishLevel(){
     const idx=curriculumIndex(L);
     if(idx>=0 && idx<LEVELS.length-1 && idx+1>unlocked) unlocked=idx+1;
   }
+  const accPct=(hits+misses)?Math.round(hits/(hits+misses)*100):100;
+  maybeUnlockNextMode(accPct);
   bumpStreak();
   saveProgress();
   celebrate();
@@ -1091,6 +1189,7 @@ function backToLevels(){
   stopTimer();
   playScreen.classList.remove('on'); selectScreen.style.display='block';
   levelTag.style.display='none'; backBtn.style.display='none';
+  kb.classList.remove('kb-hidden');
   rebuildDisplayLevels();
   renderLevels();
   updateProgressSummary();
