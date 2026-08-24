@@ -285,6 +285,7 @@
 const YEAR_GROUPS=[2,3,4,5,6];
 const YEAR_PREF_KEY='classkeys-selected-year-v1';
 const PROFILE_KEY='classkeys-profile-v1';
+const STREAK_KEY='classkeys-streak-v1';
 const customListKeyFor=y=>`classkeys-custom-yr${y}-au-v1`;
 const DATA_VERSION='17';
 const dataUrlFor=y=>`data/yr${y}-au.json?v=${DATA_VERSION}`;
@@ -374,7 +375,7 @@ function applyYearLock(){
 }
 function resetPlayState(){
   unlocked=0; lvl=0; item=0; pos=0; busy=false; shiftArmed=false;
-  hits=0; misses=0; streak=0; lastPlayDate=''; progressSchema=1;
+  hits=0; misses=0; progressSchema=1;
   Object.keys(bestTimes).forEach(k=>delete bestTimes[k]);
   Object.keys(levelStats).forEach(k=>delete levelStats[k]);
 }
@@ -473,7 +474,56 @@ function migrateProgressToIds(){
   Object.assign(levelStats,ls);
   if(LEVELS.length&&unlocked>LEVELS.length-1) unlocked=Math.max(0,LEVELS.length-1);
   progressSchema=2;
+  migrateStreakToShared();
   return true;
+}
+function saveStreak(){
+  try{
+    localStorage.setItem(STREAK_KEY,JSON.stringify({ streak, lastPlayDate }));
+  }catch(e){}
+}
+function stripStreakFromYearStores(){
+  YEAR_GROUPS.forEach(y=>{
+    try{
+      const key=storageKeyFor(y);
+      const raw=localStorage.getItem(key);
+      if(!raw) return;
+      const d=JSON.parse(raw);
+      if(!('streak' in d)&&!('lastPlayDate' in d)) return;
+      delete d.streak;
+      delete d.lastPlayDate;
+      localStorage.setItem(key,JSON.stringify(d));
+    }catch(e){}
+  });
+}
+function migrateStreakToShared(){
+  let bestStreak=streak||0, bestDate=lastPlayDate||'';
+  YEAR_GROUPS.forEach(y=>{
+    try{
+      const raw=localStorage.getItem(storageKeyFor(y));
+      if(!raw) return;
+      const d=JSON.parse(raw);
+      if(typeof d.streak==='number'&&d.streak>bestStreak) bestStreak=d.streak;
+      if(d.lastPlayDate&&(!bestDate||new Date(d.lastPlayDate)>new Date(bestDate))) bestDate=d.lastPlayDate;
+    }catch(e){}
+  });
+  streak=bestStreak;
+  lastPlayDate=bestDate;
+  saveStreak();
+  stripStreakFromYearStores();
+}
+function loadStreak(){
+  try{
+    const raw=localStorage.getItem(STREAK_KEY);
+    if(raw){
+      const d=JSON.parse(raw);
+      if(typeof d.streak==='number') streak=d.streak;
+      if(d.lastPlayDate) lastPlayDate=d.lastPlayDate;
+      stripStreakFromYearStores();
+      return;
+    }
+  }catch(e){}
+  migrateStreakToShared();
 }
 function loadProgress(){
   try{
@@ -488,14 +538,13 @@ function loadProgress(){
     if(data.levelStats && typeof data.levelStats==='object'){
       Object.keys(data.levelStats).forEach(k=>{ levelStats[k]=data.levelStats[k]; });
     }
-    if(typeof data.streak==='number') streak=data.streak;
-    if(data.lastPlayDate) lastPlayDate=data.lastPlayDate;
     document.getElementById('savedNote').hidden=false;
   }catch(e){ /* ignore corrupt storage */ }
 }
 function saveProgress(){
   try{
-    localStorage.setItem(STORAGE_KEY,JSON.stringify({ schema:progressSchema, unlocked, bestTimes, levelStats, streak, lastPlayDate }));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify({ schema:progressSchema, unlocked, bestTimes, levelStats }));
+    saveStreak();
     document.getElementById('savedNote').hidden=false;
     updateProgressSummary();
     updateParentStats();
@@ -523,10 +572,13 @@ function updateProgressSummary(){
   if(!LEVELS.length){ el.innerHTML=''; return; }
   const done=levelsCompleted();
   const acc=avgAccuracy();
+  const streakLabel=streak===1
+    ?'🔥 <strong>1</strong> day streak — come back tomorrow'
+    :`🔥 <strong>${streak}</strong> days streak`;
   el.innerHTML=
     `<span class="progress-pill"><strong>${done}</strong> / ${LEVELS.length} levels done</span>`+
     (acc?`<span class="progress-pill">Avg accuracy <strong>${acc}</strong></span>`:'')+
-    (streak>1?`<span class="progress-pill">🔥 <strong>${streak}</strong> day streak</span>`:'');
+    (streak>=1?`<span class="progress-pill">${streakLabel}</span>`:'');
 }
 function updateParentStats(){
   const el=document.getElementById('parentStats');
@@ -704,7 +756,7 @@ function buildProgressReport(){
     name?'Student: '+name:'',
     '',
     'Levels unlocked: '+(LEVELS.length?Math.min(unlocked+1,LEVELS.length):0)+' of '+LEVELS.length,
-    streak>1?'Practice streak: '+streak+' days':'',
+    streak>=1?'Practice streak: '+streak+(streak===1?' day':' days'):'',
     ''
   ];
   displayLevels.forEach((L,i)=>{
@@ -1093,6 +1145,7 @@ try{
 }catch(e){}
 importFromHash();
 loadProfile();
+loadStreak();
 loadProgress();
 renderYearTabs();
 loadLevels();
