@@ -81,6 +81,12 @@
     color:var(--RM); background:#eef5fc; border-radius:999px; padding:2px 9px; white-space:nowrap;}
   .mode-next-hint{margin:0 0 14px; font-size:12px; color:var(--ink-soft); font-weight:600; line-height:1.45; text-align:center;
     font-family:'Fredoka',sans-serif;}
+  .tricky-strip{margin:0 0 12px; text-align:center;}
+  .tricky-strip .tricky-label{margin:0 0 8px; font-family:'Fredoka',sans-serif; font-weight:600; font-size:14px; color:var(--ink-soft);}
+  .tricky-chips{display:flex; justify-content:center; gap:8px; flex-wrap:wrap;}
+  .tricky-chip{font-family:'Fredoka',sans-serif; font-weight:600; font-size:16px; color:#fff;
+    min-width:36px; height:40px; padding:0 10px; border-radius:10px; display:inline-grid; place-items:center;
+    background:var(--fc,#8899aa); border-bottom:3px solid color-mix(in srgb, var(--fc,#8899aa) 70%, #000); box-shadow:0 2px 0 rgba(20,30,40,.08);}
   .panel-check{display:flex; align-items:flex-start; gap:10px; margin:12px 0 4px; font-size:14px; font-weight:600; color:var(--ink); text-align:left; cursor:pointer;}
   .panel-check input{width:18px; height:18px; margin-top:2px; flex:0 0 auto; accent-color:var(--RM);}
   .parent-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:10px;}
@@ -228,6 +234,10 @@
     </div>
     <p class="mode-lock-hint" id="modeLockHint" hidden></p>
     <p class="mode-next-hint" id="modeNextHint" hidden></p>
+    <div class="tricky-strip" id="trickyStrip" hidden>
+      <p class="tricky-label">Tricky keys — worth a bit of practice</p>
+      <div class="tricky-chips" id="trickyChips"></div>
+    </div>
     <div class="info-panels">
       <button type="button" class="panel-toggle" id="teacherToggle">For teachers ▾</button>
       <button type="button" class="panel-toggle" id="parentToggle">For parents ▾</button>
@@ -373,7 +383,7 @@ let LEVELS=[];
 
 /* ---------- state ---------- */
 let unlocked=0, lvl=0, item=0, pos=0, busy=false, shiftArmed=false;
-let playOrder=[]; const bestTimes={}; const levelStats={};
+let playOrder=[]; const bestTimes={}; const levelStats={}; const keyErrors={};
 let progressSchema=1;
 let hits=0, misses=0;
 const MODE_ORDER=['glow','keys','hidden'];
@@ -469,6 +479,7 @@ function resetPlayState(){
   hintMode='glow'; unlockedModes=['glow'];
   Object.keys(bestTimes).forEach(k=>delete bestTimes[k]);
   Object.keys(levelStats).forEach(k=>delete levelStats[k]);
+  Object.keys(keyErrors).forEach(k=>delete keyErrors[k]);
 }
 function loadProfile(){
   try{
@@ -531,8 +542,49 @@ function makeCustomLevel(custom){
     items:custom.items.slice()
   };
 }
+function recordKeyResult(target,ok){
+  if(target===undefined||target==='') return;
+  if(!keyErrors[target]) keyErrors[target]={hits:0,misses:0};
+  if(ok) keyErrors[target].hits++;
+  else keyErrors[target].misses++;
+}
+function getTrickyChars(limit=5){
+  return Object.keys(keyErrors).map(ch=>{
+    const hitsN=+keyErrors[ch].hits||0, missesN=+keyErrors[ch].misses||0;
+    const total=hitsN+missesN;
+    return{ch,hits:hitsN,misses:missesN,total,rate:total?missesN/total:0};
+  }).filter(x=>x.total>=10)
+    .sort((a,b)=>b.rate-a.rate||b.misses-a.misses||a.ch.localeCompare(b.ch))
+    .slice(0,limit);
+}
+function makeTrickyKeysLevel(){
+  const tricky=getTrickyChars(5);
+  if(!tricky.length) return null;
+  const chars=tricky.map(t=>t.ch);
+  const seen=new Set();
+  const pool=[];
+  LEVELS.forEach(L=>{
+    (L.items||[]).forEach(word=>{
+      if(seen.has(word)) return;
+      if(chars.some(ch=>String(word).includes(ch))){
+        seen.add(word);
+        pool.push(word);
+      }
+    });
+  });
+  if(!pool.length) return null;
+  const items=shuffle(pool.slice()).slice(0,20);
+  return{
+    id:'tricky-keys',
+    name:'Tricky Keys',
+    color:'RR', emoji:'🔑', generated:true,
+    sub:'Extra practice on keys you miss most',
+    curriculum:{codes:['Practice'],focus:'Build accuracy on your trickiest keys'},
+    items
+  };
+}
 function isGeneratedLevel(L){
-  return !L||L.id==='custom'||L.id==='tricky-keys'||!!L.custom;
+  return !L||L.id==='custom'||L.id==='tricky-keys'||!!L.custom||!!L.generated;
 }
 function curriculumIndex(L){
   if(!L?.id||isGeneratedLevel(L)) return -1;
@@ -547,6 +599,22 @@ function rebuildDisplayLevels(){
   displayLevels=LEVELS.slice();
   const custom=loadCustomList();
   if(custom) displayLevels.push(makeCustomLevel(custom));
+  const tricky=makeTrickyKeysLevel();
+  if(tricky) displayLevels.push(tricky);
+}
+function renderTrickyStrip(){
+  const strip=document.getElementById('trickyStrip');
+  const chips=document.getElementById('trickyChips');
+  if(!strip||!chips) return;
+  const list=getTrickyChars(5);
+  if(!list.length){ strip.hidden=true; chips.innerHTML=''; return; }
+  strip.hidden=false;
+  chips.innerHTML=list.map(({ch})=>{
+    const lk=ch===' '?' ':baseKey(ch);
+    const color=cssColor(KEYFINGER[lk]||'TH');
+    const label=ch===' '?'␣':esc(ch);
+    return `<span class="tricky-chip" style="--fc:${color}">${label}</span>`;
+  }).join('');
 }
 function remapKeyedProgress(src){
   const out={};
@@ -634,6 +702,13 @@ function loadProgress(){
     if(data.levelStats && typeof data.levelStats==='object'){
       Object.keys(data.levelStats).forEach(k=>{ levelStats[k]=data.levelStats[k]; });
     }
+    Object.keys(keyErrors).forEach(k=>delete keyErrors[k]);
+    if(data.keyErrors && typeof data.keyErrors==='object'){
+      Object.keys(data.keyErrors).forEach(k=>{
+        const e=data.keyErrors[k];
+        if(e&&typeof e==='object') keyErrors[k]={hits:+e.hits||0,misses:+e.misses||0};
+      });
+    }
     if(Array.isArray(data.unlockedModes)){
       unlockedModes=data.unlockedModes.filter(m=>MODE_ORDER.includes(m));
     } else unlockedModes=['glow'];
@@ -645,12 +720,13 @@ function loadProgress(){
 }
 function saveProgress(){
   try{
-    localStorage.setItem(STORAGE_KEY,JSON.stringify({ schema:progressSchema, unlocked, bestTimes, levelStats, hintMode, unlockedModes }));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify({ schema:progressSchema, unlocked, bestTimes, levelStats, keyErrors, hintMode, unlockedModes }));
     saveStreak();
     document.getElementById('savedNote').hidden=false;
     updateProgressSummary();
     updateParentStats();
     renderModeControl();
+    renderTrickyStrip();
   }catch(e){ /* private browsing / quota */ }
 }
 function levelsCompleted(){
@@ -672,7 +748,7 @@ function avgAccuracy(){
 }
 function updateProgressSummary(){
   const el=document.getElementById('progressSummary');
-  if(!LEVELS.length){ el.innerHTML=''; renderModeControl(); return; }
+  if(!LEVELS.length){ el.innerHTML=''; renderModeControl(); renderTrickyStrip(); return; }
   const done=levelsCompleted();
   const acc=avgAccuracy();
   const streakLabel=streak===1
@@ -683,6 +759,7 @@ function updateProgressSummary(){
     (acc?`<span class="progress-pill">Avg accuracy <strong>${acc}</strong></span>`:'')+
     (streak>=1?`<span class="progress-pill">${streakLabel}</span>`:'');
   renderModeControl();
+  renderTrickyStrip();
 }
 function renderModeControl(){
   const wrap=document.getElementById('modeControl');
@@ -889,6 +966,14 @@ function buildProgressReport(){
     'Modes unlocked: '+MODE_ORDER.filter(isModeUnlocked).map(m=>MODE_LABELS[m]).join(', '),
     ''
   ];
+  const worst=getTrickyChars(5);
+  if(worst.length){
+    lines.push('Tricky keys: '+worst.map(w=>{
+      const show=w.ch===' '?'space':w.ch;
+      return "'"+show+"' "+Math.round(w.rate*100)+'% errors ('+w.misses+'/'+w.total+')';
+    }).join(', '));
+    lines.push('');
+  }
   displayLevels.forEach((L,i)=>{
     const id=L.id;
     let line=(isGeneratedLevel(L)?'•':(curriculumIndex(L)+1)+'.')+' '+L.name+' — ';
@@ -1166,6 +1251,8 @@ function pressBackspace(){
   if(pos<=0) return;
   pos--;
   hits=Math.max(0,hits-1);
+  const undone=playOrder[item]?.[pos];
+  if(undone!==undefined&&keyErrors[undone]) keyErrors[undone].hits=Math.max(0,(+keyErrors[undone].hits||0)-1);
   backEl.classList.add('hit');
   setTimeout(()=>backEl.classList.remove('hit'),160);
   refresh();
@@ -1177,6 +1264,7 @@ function pressChar(produced){
   const text=playOrder[item]; const target=text[pos]; if(target===undefined) return;
   if(produced===target){
     hits++;
+    recordKeyResult(target,true);
     const lk=target===' '?' ':baseKey(target); const el=keyEls[lk];
     if(el){el.classList.add('hit'); setTimeout(()=>el.classList.remove('hit'),160);}
     pos++;
@@ -1187,6 +1275,7 @@ function pressChar(produced){
     } else refresh();
   } else {
     misses++;
+    recordKeyResult(target,false);
     showEncourage();
     const lk=produced===' '?' ':baseKey(produced||''); const el=keyEls[lk];
     if(el){el.classList.add('miss'); setTimeout(()=>el.classList.remove('miss'),320);}
