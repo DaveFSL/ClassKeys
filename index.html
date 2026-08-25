@@ -64,6 +64,9 @@
   .panel-actions .btn-ghost{display:inline-block;}
   .panel-hint{margin:10px 0 0; font-size:12px; color:var(--ink-soft); font-weight:600; line-height:1.45; text-align:center;}
   .panel-hint.soft{font-size:11px; opacity:.9; margin-top:6px;}
+  .panel-lock-link{font-family:'Fredoka',sans-serif; font-weight:600; font-size:12px; color:var(--ink-soft);
+    background:none; border:none; padding:0; cursor:pointer; text-decoration:underline;}
+  .panel-lock-link:hover{color:var(--ink);}
   .panel-divider{height:1px; background:var(--line); margin:14px 0;}
   .panel-section-title{font-family:'Fredoka',sans-serif; font-weight:600; font-size:14px; color:var(--ink); margin:0 0 8px;}
   .progress-summary{display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin:0 0 12px;}
@@ -246,6 +249,17 @@
       <button type="button" class="panel-toggle" id="parentToggle">For parents ▾</button>
       <button type="button" class="panel-toggle" id="importToggle">Import word list ▾</button>
       <div class="panel-body" id="teacherBody" hidden>
+        <div id="teacherGate">
+          <p class="panel-section-title">Teacher access</p>
+          <p class="panel-hint">This section is for teachers.</p>
+          <label class="panel-label" for="teacherAccessCode">Enter code</label>
+          <input type="text" id="teacherAccessCode" class="panel-input" inputmode="numeric" autocomplete="off" maxlength="12" placeholder="Enter code">
+          <div class="panel-actions">
+            <button type="button" class="btn-ghost show" id="teacherAccessUnlock">Unlock</button>
+          </div>
+          <p class="panel-hint" id="teacherAccessMsg" hidden>Not quite — try again</p>
+        </div>
+        <div id="teacherTools" hidden>
         <label class="panel-label" for="studentName">Student name (saved on this device)</label>
         <input type="text" id="studentName" class="panel-input" placeholder="e.g. Sam" maxlength="60">
         <div class="panel-actions">
@@ -278,6 +292,8 @@
           <button type="button" class="btn-ghost show" id="removeCustomListTeacher">Remove saved list</button>
         </div>
         <p class="panel-hint">Share the link or file via Google Classroom, Seesaw or email. Students tap <strong>Import word list</strong> — no file editing needed.</p>
+        <p class="panel-hint"><button type="button" class="panel-lock-link" id="teacherAccessLock">Lock again</button></p>
+        </div>
       </div>
       <div class="panel-body" id="parentBody" hidden>
         <div class="parent-stats" id="parentStats"></div>
@@ -338,6 +354,8 @@ const YEAR_GROUPS=[2,3,4,5,6];
 const YEAR_PREF_KEY='classkeys-selected-year-v1';
 const PROFILE_KEY='classkeys-profile-v1';
 const STREAK_KEY='classkeys-streak-v1';
+const TEACHER_ACCESS_KEY='classkeys-teacher-access-v1';
+const TEACHER_ACCESS_CODE='1977'; // change to set the teacher code
 const customListKeyFor=y=>`classkeys-custom-yr${y}-au-v1`;
 const DATA_VERSION='17';
 const dataUrlFor=y=>`data/yr${y}-au.json?v=${DATA_VERSION}`;
@@ -495,6 +513,48 @@ function resetPlayState(){
   Object.keys(bestTimes).forEach(k=>delete bestTimes[k]);
   Object.keys(levelStats).forEach(k=>delete levelStats[k]);
   Object.keys(keyErrors).forEach(k=>delete keyErrors[k]);
+}
+function hasTeacherAccess(){
+  try{
+    const d=JSON.parse(localStorage.getItem(TEACHER_ACCESS_KEY)||'{}');
+    return !!d.teacherAccess;
+  }catch(e){ return false; }
+}
+function setTeacherAccess(on){
+  try{
+    if(on) localStorage.setItem(TEACHER_ACCESS_KEY,JSON.stringify({teacherAccess:true}));
+    else localStorage.removeItem(TEACHER_ACCESS_KEY);
+  }catch(e){}
+}
+function renderTeacherAccess(){
+  const unlocked=hasTeacherAccess();
+  const gate=document.getElementById('teacherGate');
+  const tools=document.getElementById('teacherTools');
+  if(gate) gate.hidden=unlocked;
+  if(tools) tools.hidden=!unlocked;
+  const msg=document.getElementById('teacherAccessMsg');
+  if(msg) msg.hidden=true;
+  if(unlocked) updateClassLink();
+}
+function tryTeacherUnlock(){
+  const input=document.getElementById('teacherAccessCode');
+  const msg=document.getElementById('teacherAccessMsg');
+  const code=(input?.value||'').trim();
+  if(code===TEACHER_ACCESS_CODE){
+    setTeacherAccess(true);
+    if(input) input.value='';
+    if(msg) msg.hidden=true;
+    renderTeacherAccess();
+    return;
+  }
+  if(msg) msg.hidden=false;
+  if(input){ input.value=''; input.focus(); }
+}
+function lockTeacherAccess(){
+  setTeacherAccess(false);
+  const input=document.getElementById('teacherAccessCode');
+  if(input) input.value='';
+  renderTeacherAccess();
 }
 function loadProfile(){
   try{
@@ -1079,8 +1139,13 @@ function downloadReport(){
 
 document.getElementById('teacherToggle').onclick=()=>{
   togglePanel('teacherBody','teacherToggle','For teachers ▴','For teachers ▾');
-  if(!document.getElementById('teacherBody').hidden) updateClassLink();
+  if(!document.getElementById('teacherBody').hidden) renderTeacherAccess();
 };
+document.getElementById('teacherAccessUnlock').onclick=tryTeacherUnlock;
+document.getElementById('teacherAccessCode').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){ e.preventDefault(); tryTeacherUnlock(); }
+});
+document.getElementById('teacherAccessLock').onclick=lockTeacherAccess;
 document.getElementById('parentToggle').onclick=()=>{
   togglePanel('parentBody','parentToggle','For parents ▴','For parents ▾');
   if(!document.getElementById('parentBody').hidden) updateParentStats();
@@ -1471,6 +1536,7 @@ loadStreak();
 loadProgress();
 renderYearTabs();
 syncClassLinkYearSelect();
+renderTeacherAccess();
 loadLevels();
 
 if('serviceWorker' in navigator){
