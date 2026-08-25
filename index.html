@@ -56,12 +56,14 @@
   .panel-body{margin-top:10px; padding:14px 16px; background:var(--panel); border:1.5px solid var(--line); border-radius:16px; text-align:left;}
   .panel-body[hidden]{display:none;}
   .panel-label{display:block; font-family:'Fredoka',sans-serif; font-weight:600; font-size:13px; color:var(--ink-soft); margin:0 0 6px;}
-  .panel-input,.panel-textarea{width:100%; font-family:'Nunito',sans-serif; font-size:15px; font-weight:600; padding:10px 14px;
-    border:1.5px solid var(--line); border-radius:12px; margin-bottom:10px; color:var(--ink); user-select:text; -webkit-user-select:text;}
+  .panel-input,.panel-textarea,.panel-select{width:100%; font-family:'Nunito',sans-serif; font-size:15px; font-weight:600; padding:10px 14px;
+    border:1.5px solid var(--line); border-radius:12px; margin-bottom:10px; color:var(--ink); user-select:text; -webkit-user-select:text; background:#fff;}
+  .panel-select{cursor:pointer;}
   .panel-textarea{min-height:88px; resize:vertical; line-height:1.45;}
   .panel-actions{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:4px;}
   .panel-actions .btn-ghost{display:inline-block;}
   .panel-hint{margin:10px 0 0; font-size:12px; color:var(--ink-soft); font-weight:600; line-height:1.45; text-align:center;}
+  .panel-hint.soft{font-size:11px; opacity:.9; margin-top:6px;}
   .panel-divider{height:1px; background:var(--line); margin:14px 0;}
   .panel-section-title{font-family:'Fredoka',sans-serif; font-weight:600; font-size:14px; color:var(--ink); margin:0 0 8px;}
   .progress-summary{display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin:0 0 12px;}
@@ -252,6 +254,17 @@
         </div>
         <label class="panel-check"><input type="checkbox" id="unlockAllModes"><span>Unlock all keyboard modes</span></label>
         <p class="panel-hint">For students who already type well — unlocks Glowing keys, No glow and Keyboard hidden.</p>
+        <div class="panel-divider"></div>
+        <p class="panel-section-title">Class link</p>
+        <label class="panel-label" for="classLinkYear">Year level</label>
+        <select id="classLinkYear" class="panel-select" aria-label="Year level for class link"></select>
+        <label class="panel-label" for="classLinkUrl">Link for your class</label>
+        <input type="text" id="classLinkUrl" class="panel-input" readonly>
+        <div class="panel-actions">
+          <button type="button" class="btn-ghost show" id="copyClassLink">Copy link</button>
+        </div>
+        <p class="panel-hint">Send this link to your class. It opens ClassKeys locked to one year level, so students can't skip ahead to other years.</p>
+        <p class="panel-hint soft">This hides the year tabs. A student who edits the address can still reach other years — it's a guide rail, not a lock.</p>
         <div class="panel-divider"></div>
         <p class="panel-section-title">Create a word list for your class</p>
         <label class="panel-label" for="customListName">List name</label>
@@ -528,6 +541,7 @@ function removeCustomList(){
   updateProgressSummary();
   updateParentStats();
   saveProgress();
+  updateClassLink();
   toast('Word list removed');
   return true;
 }
@@ -811,8 +825,8 @@ function encodeListPayload(payload){
 function decodeListPayload(str){
   return JSON.parse(decodeURIComponent(escape(atob(str))));
 }
-function buildListPayload(name,items){
-  return{type:'classkeys-list',version:1,name:name||'Teacher word list',yearGroup:currentYear,items};
+function buildListPayload(name,items,yearGroup){
+  return{type:'classkeys-list',version:1,name:name||'Teacher word list',yearGroup:yearGroup||currentYear,items};
 }
 function applyCustomList(name,items){
   const cleaned=parseWordsText(Array.isArray(items)?items.join('\n'):String(items||''));
@@ -823,8 +837,47 @@ function applyCustomList(name,items){
   renderLevels();
   updateProgressSummary();
   updateParentStats();
+  updateClassLink();
   toast('Word list ready — tap Teacher word list');
   return true;
+}
+function resolveClassLinkList(year){
+  if(year===currentYear){
+    const items=parseWordsText(document.getElementById('customListWords').value);
+    if(items.length){
+      return{name:document.getElementById('customListName').value.trim()||'Teacher word list',items};
+    }
+  }
+  try{
+    const raw=localStorage.getItem(customListKeyFor(year));
+    if(!raw) return null;
+    const d=JSON.parse(raw);
+    if(!Array.isArray(d.items)||!d.items.length) return null;
+    return d;
+  }catch(e){ return null; }
+}
+function getClassLink(){
+  const sel=document.getElementById('classLinkYear');
+  let y=+(sel&&sel.value);
+  if(!YEAR_GROUPS.includes(y)) y=currentYear;
+  let url=window.location.origin+window.location.pathname+'?year='+y;
+  const list=resolveClassLinkList(y);
+  if(list){
+    url+='#list='+encodeURIComponent(encodeListPayload(buildListPayload(list.name,list.items,y)));
+  }
+  return url;
+}
+function updateClassLink(){
+  const field=document.getElementById('classLinkUrl');
+  if(field) field.value=getClassLink();
+}
+function syncClassLinkYearSelect(){
+  const sel=document.getElementById('classLinkYear');
+  if(!sel) return;
+  const keep=+sel.value;
+  sel.innerHTML=YEAR_GROUPS.map(y=>`<option value="${y}">Year ${y}</option>`).join('');
+  sel.value=String(YEAR_GROUPS.includes(keep)?keep:currentYear);
+  updateClassLink();
 }
 function getShareLink(){
   const name=document.getElementById('customListName').value.trim()||'Teacher word list';
@@ -891,6 +944,7 @@ async function loadLevels(){
       document.getElementById('customListName').value=custom.name||'';
       document.getElementById('customListWords').value=custom.items.join('\n');
     }
+    updateClassLink();
   }catch(e){
     grid.innerHTML='<div class="load-msg">Could not load levels. Check your connection and refresh.</div>';
   }
@@ -924,6 +978,8 @@ async function switchYear(y){
   loadProgress();
   renderYearTabs();
   await loadLevels();
+  const classYear=document.getElementById('classLinkYear');
+  if(classYear){ classYear.value=String(y); updateClassLink(); }
 }
 function curriculumTag(L){
   const codes=L.curriculum?.codes;
@@ -1023,6 +1079,7 @@ function downloadReport(){
 
 document.getElementById('teacherToggle').onclick=()=>{
   togglePanel('teacherBody','teacherToggle','For teachers ▴','For teachers ▾');
+  if(!document.getElementById('teacherBody').hidden) updateClassLink();
 };
 document.getElementById('parentToggle').onclick=()=>{
   togglePanel('parentBody','parentToggle','For parents ▴','For parents ▾');
@@ -1062,6 +1119,18 @@ document.getElementById('copyShareLink').onclick=()=>{
   const link=getShareLink();
   if(link) copyText(link);
 };
+document.getElementById('classLinkYear').addEventListener('change',updateClassLink);
+document.getElementById('copyClassLink').onclick=()=>{
+  const link=getClassLink();
+  document.getElementById('classLinkUrl').value=link;
+  copyText(link);
+};
+['customListName','customListWords'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',()=>{
+    const y=+document.getElementById('classLinkYear').value;
+    if(y===currentYear) updateClassLink();
+  });
+});
 document.getElementById('downloadCustomList').onclick=()=>{
   const name=document.getElementById('customListName').value.trim()||'teacher-word-list';
   const items=parseWordsText(document.getElementById('customListWords').value);
@@ -1401,6 +1470,7 @@ loadProfile();
 loadStreak();
 loadProgress();
 renderYearTabs();
+syncClassLinkYearSelect();
 loadLevels();
 
 if('serviceWorker' in navigator){
